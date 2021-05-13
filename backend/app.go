@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/syllabix/rollpay/backend/config"
+	"github.com/syllabix/rollpay/backend/service/payment"
 	"github.com/syllabix/rollpay/backend/util/observabilty"
 	"github.com/syllabix/rollpay/backend/util/profiler"
 	"github.com/syllabix/rollpay/backend/web"
@@ -26,6 +27,7 @@ func NewApplication(options ...Option) Application {
 	settings := apply(options...)
 
 	app := fx.New(
+		// fx configuration
 		fx.StartTimeout(settings.startTimeout),
 		fx.StopTimeout(settings.stopTimeout),
 		// the default fx logger will print the dependency
@@ -37,10 +39,10 @@ func NewApplication(options ...Option) Application {
 		fx.Provide(config.Load),
 		web.Module,
 		observabilty.Module,
+		payment.Module,
 
+		// start the engines
 		fx.Invoke(start),
-
-		// enables pprof on default port 6060
 		fx.Invoke(profiler.Start),
 	)
 
