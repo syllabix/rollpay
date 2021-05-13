@@ -59,7 +59,7 @@ func start(lc fx.Lifecycle, server web.Server, log *zap.Logger) {
 		},
 
 		OnStop: func(ctx context.Context) error {
-			log.Info("powering down the toaster...")
+			log.Info("powering down rollpay web service...")
 			return server.Shutdown(ctx)
 		},
 	})
