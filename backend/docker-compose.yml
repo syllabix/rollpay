@@ -1,0 +1,31 @@
+version: "3"
+services:
+  local_dev:
+    image: syllabix/gobuilder:0.9.0
+    container_name: "rollpay_dev"
+    volumes:
+      - "./:${LOCAL_MOUNT}"
+      - "./.cache/pkg:/go/pkg"
+    working_dir: "${LOCAL_MOUNT}"
+    tty: true
+    links:
+      - "postgres:postgres"
+  redis:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_PASSWORD=password123
+      # - ALLOW_EMPTY_PASSWORD=yes
+      - DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres:12
+    command: postgres -c 'max_connections=100'
+    environment:
+      - POSTGRES_USER=rollpay
+      - POSTGRES_PASSWORD=p4ssw0rd
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./.dev:/docker-entrypoint-initdb.d"
+      - "./.migrations:/databases"

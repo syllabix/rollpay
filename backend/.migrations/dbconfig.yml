@@ -1,0 +1,6 @@
+
+rollpay:
+  dialect: postgres
+  datasource: dbname=rollpay sslmode=disable user=rollpay password=p4ssw0rd host=postgres port=5432
+  dir: .migrations/rollpay
+  table: migrations # name of the migrations table

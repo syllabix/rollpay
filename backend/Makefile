@@ -29,3 +29,17 @@ run:
 ## generates a .env file that can be used to configure local dev
 envfile:
 	cp .env.example .env
+
+## Start development environment (generates code, spins up databases, etc)
+dev.start:
+	echo "LOCAL_MOUNT=$(shell pwd)" > .env
+	docker compose up -d
+
+## Stop the development environment
+dev.stop:
+	docker compose down
+
+name = ""
+## Creates a new db migration file for the provided service. (Ex: make migration name=cool-new-tables)
+migration:
+	$(MAKE) _dexec CMD="sql-migrate new -config=.migrations/dbconfig.yml -env=rollpay $(name)"
