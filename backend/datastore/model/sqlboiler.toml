@@ -1,0 +1,11 @@
+[psql]
+dbname = "rollpay"
+host = "postgres"
+port = 5432
+user = "rollpay"
+pass = "p4ssw0rd"
+sslmode = "disable"
+pkgname = "model"
+blacklist = [
+    "migrations",
+]

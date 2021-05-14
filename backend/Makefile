@@ -45,5 +45,18 @@ name = ""
 migration:
 	$(MAKE) _dexec CMD="sql-migrate new -config=.migrations/dbconfig.yml -env=rollpay $(name)"
 
+## Run an up migration
+migrate.up:
+	$(MAKE) _dexec CMD="sql-migrate up -config=.migrations/dbconfig.yml -env=rollpay"
+
+## Run a down migration
+migrate.down:
+	$(MAKE) _dexec CMD="sql-migrate down -config=.migrations/dbconfig.yml -env=rollpay"
+
+## Generates database models based upon the existing tables in your local development database
+dbmodels:
+	rm -rf ./datastore/model/*.go
+	$(MAKE) _dexec CMD="sqlboiler -c datastore/model/sqlboiler.toml -o datastore/model -p model --tag db --no-hooks psql --add-soft-deletes"
+
 _dexec:
 	docker exec rollpay_dev ${CMD}
