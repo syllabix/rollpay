@@ -12,6 +12,16 @@ type Client struct {
 	*plaid.Client
 }
 
+func New(settings config.PlaidSettings) (Client, error) {
+	opts := optsFrom(settings)
+	client, err := plaid.NewClient(opts)
+	if err != nil {
+		return Client{}, fmt.Errorf("failed to initialize Plaid client: %w", err)
+	}
+
+	return Client{client}, nil
+}
+
 func optsFrom(settings config.PlaidSettings) plaid.ClientOptions {
 	return plaid.ClientOptions{
 		ClientID:    settings.ClientID,
@@ -19,13 +29,4 @@ func optsFrom(settings config.PlaidSettings) plaid.ClientOptions {
 		Environment: settings.Environment,
 		HTTPClient:  retryable.NewClient(),
 	}
-}
-
-func New(settings config.PlaidSettings) (Client, error) {
-	client, err := plaid.NewClient(optsFrom(settings))
-	if err != nil {
-		return Client{}, fmt.Errorf("failed to initialize Plaid client: %w", err)
-	}
-
-	return Client{client}, nil
 }
