@@ -32,7 +32,8 @@ envfile:
 
 ## Start development environment (generates code, spins up databases, etc)
 dev.start:
-	echo "LOCAL_MOUNT=$(shell pwd)" > .env
+	mkdir -p .cache/pkg
+	echo "LOCAL_MOUNT=$(shell pwd)" >> .env
 	docker compose up -d
 
 ## Stop the development environment
@@ -43,3 +44,6 @@ name = ""
 ## Creates a new db migration file for the provided service. (Ex: make migration name=cool-new-tables)
 migration:
 	$(MAKE) _dexec CMD="sql-migrate new -config=.migrations/dbconfig.yml -env=rollpay $(name)"
+
+_dexec:
+	docker exec rollpay_dev ${CMD}
