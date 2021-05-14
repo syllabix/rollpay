@@ -22,6 +22,10 @@ help:
 		| sort >&2
 	@echo "" >&2
 
-
+## run the server locally as configured by a .env file in the root of backend dir
 run:
 	go run cmd/main.go
+
+## generates a .env file that can be used to configure local dev
+envfile:
+	cp .env.example .env

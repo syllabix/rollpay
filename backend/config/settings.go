@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -37,19 +36,12 @@ func Load() (ServerSettings, PlaidSettings) {
 		panic(fmt.Sprintf("unable to load .env file: reason %v", err))
 	}
 
-	port := flag.String("port", "8080", "set the port the server will listen on")
-	host := flag.String("host", "localhost", "set the server host")
-	pprofPort := flag.String("pprof-port", "6060", "sets port that pprof will listen on (used for profiling)")
-	readtimeout := flag.Duration("read-timeout", time.Second*5, "set the server read timeout")
-	writetimeout := flag.Duration("write-timeout", time.Second*5, "set the server write timeout")
-	flag.Parse()
-
 	return ServerSettings{
-			Port:         *port,
-			Host:         *host,
-			ProfilerPort: *pprofPort,
-			ReadTimeout:  *readtimeout,
-			WriteTimeout: *writetimeout,
+			Host:         os.Getenv("HOST"),
+			Port:         os.Getenv("PORT"),
+			ProfilerPort: os.Getenv("PPROF"),
+			ReadTimeout:  getEnvAsDur("READ_TIMEOUT"),
+			WriteTimeout: getEnvAsDur("WRITE_TIMEOUT"),
 		},
 		PlaidSettings{
 			ClientID:     os.Getenv("PLAID_CLIENT_ID"),
@@ -59,4 +51,16 @@ func Load() (ServerSettings, PlaidSettings) {
 			CountryCodes: os.Getenv("PLAID_COUNTRY_CODES"),
 			RedirectURI:  os.Getenv("PLAID_REDIRECT_URI"),
 		}
+}
+
+// getEnvAsDur returns a duration value for and environment variable key
+// if the key is empty or value is empty (or not in valid duration syntax)
+// this func returns a default of 5 seconds
+func getEnvAsDur(key string) time.Duration {
+	val := os.Getenv(key)
+	dur, err := time.ParseDuration(val)
+	if err != nil {
+		return time.Duration(time.Second * 5)
+	}
+	return dur
 }
