@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/plaid/plaid-go/plaid"
 	"github.com/syllabix/rollpay/backend/config/plaidenv"
+	"github.com/syllabix/rollpay/backend/db"
 )
 
 type PlaidSettings struct {
@@ -23,6 +24,7 @@ type ServerSettings struct {
 	Host         string
 	Port         string
 	ProfilerPort string
+	DocsURL      string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 }
@@ -30,7 +32,7 @@ type ServerSettings struct {
 // Load all application settings, from either flags or a .env file
 // See the .env.example for available environment variables, or run the
 // the application with -h to see what flags are available
-func Load() (ServerSettings, PlaidSettings) {
+func Load() (ServerSettings, PlaidSettings, db.Settings) {
 	err := godotenv.Load()
 	if err != nil {
 		panic(fmt.Sprintf("unable to load .env file: reason %v", err))
@@ -39,6 +41,7 @@ func Load() (ServerSettings, PlaidSettings) {
 	return ServerSettings{
 			Host:         os.Getenv("HOST"),
 			Port:         os.Getenv("PORT"),
+			DocsURL:      os.Getenv("DOCS_PATH"),
 			ProfilerPort: os.Getenv("PPROF"),
 			ReadTimeout:  getEnvAsDur("READ_TIMEOUT"),
 			WriteTimeout: getEnvAsDur("WRITE_TIMEOUT"),
@@ -50,7 +53,8 @@ func Load() (ServerSettings, PlaidSettings) {
 			Products:     os.Getenv("PLAID_PRODUCTS"),
 			CountryCodes: os.Getenv("PLAID_COUNTRY_CODES"),
 			RedirectURI:  os.Getenv("PLAID_REDIRECT_URI"),
-		}
+		},
+		db.Settings{}
 }
 
 // getEnvAsDur returns a duration value for and environment variable key

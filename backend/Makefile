@@ -30,6 +30,12 @@ run:
 envfile:
 	cp .env.example .env
 
+.PHONY: api
+SWAGGER_GEN = swagger generate server -q --target ./api --name rollpay --spec ./api/swagger.yml --model-package model -a operation -s rest mixin --exclude-main
+## Generate the API models and server
+api:
+	$(MAKE) _dexec CMD="$(SWAGGER_GEN)"
+
 ## Start development environment (generates code, spins up databases, etc)
 dev.start:
 	mkdir -p .cache/pkg
@@ -43,15 +49,15 @@ dev.stop:
 name = ""
 ## Creates a new db migration file for the provided service. (Ex: make migration name=cool-new-tables)
 migration:
-	$(MAKE) _dexec CMD="sql-migrate new -config=.migrations/dbconfig.yml -env=rollpay $(name)"
+	$(MAKE) _dexec CMD="sql-migrate new -config=db/.migrations/dbconfig.yml -env=rollpay $(name)"
 
 ## Run an up migration
 migrate.up:
-	$(MAKE) _dexec CMD="sql-migrate up -config=.migrations/dbconfig.yml -env=rollpay"
+	$(MAKE) _dexec CMD="sql-migrate up -config=db/.migrations/dbconfig.yml -env=rollpay"
 
 ## Run a down migration
 migrate.down:
-	$(MAKE) _dexec CMD="sql-migrate down -config=.migrations/dbconfig.yml -env=rollpay"
+	$(MAKE) _dexec CMD="sql-migrate down -config=db/.migrations/dbconfig.yml -env=rollpay"
 
 ## Generates database models based upon the existing tables in your local development database
 dbmodels:

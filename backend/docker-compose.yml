@@ -28,4 +28,4 @@ services:
       - "5432:5432"
     volumes:
       - "./.dev:/docker-entrypoint-initdb.d"
-      - "./.migrations:/databases"
+      - "./db/.migrations:/databases"

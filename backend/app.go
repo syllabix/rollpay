@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/syllabix/rollpay/backend/config"
+	"github.com/syllabix/rollpay/backend/db"
 	"github.com/syllabix/rollpay/backend/service/payment"
 	"github.com/syllabix/rollpay/backend/util/observabilty"
 	"github.com/syllabix/rollpay/backend/util/profiler"
@@ -37,6 +38,7 @@ func NewApplication(options ...Option) Application {
 
 		// application dependencies
 		fx.Provide(config.Load),
+		db.Module,
 		web.Module,
 		observabilty.Module,
 		payment.Module,
