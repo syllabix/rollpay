@@ -58,6 +58,7 @@ func init() {
           "User"
         ],
         "summary": "create a new user",
+        "operationId": "CreateUserV1",
         "responses": {
           "201": {
             "description": "a newly created user",
@@ -91,6 +92,7 @@ func init() {
           "User"
         ],
         "summary": "get a user by id",
+        "operationId": "GetUserByIDV1",
         "responses": {
           "200": {
             "description": "a",
@@ -396,6 +398,7 @@ func init() {
           "User"
         ],
         "summary": "create a new user",
+        "operationId": "CreateUserV1",
         "responses": {
           "201": {
             "description": "a newly created user",
@@ -445,6 +448,7 @@ func init() {
           "User"
         ],
         "summary": "get a user by id",
+        "operationId": "GetUserByIDV1",
         "responses": {
           "200": {
             "description": "a",
