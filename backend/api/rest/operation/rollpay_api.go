@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/syllabix/rollpay/backend/api/rest/operation/health"
+	"github.com/syllabix/rollpay/backend/api/rest/operation/user"
 )
 
 // NewRollpayAPI creates a new Rollpay instance
@@ -46,6 +47,15 @@ func NewRollpayAPI(spec *loads.Document) *RollpayAPI {
 
 		HealthCheckV1Handler: health.CheckV1HandlerFunc(func(params health.CheckV1Params) middleware.Responder {
 			return middleware.NotImplemented("operation health.CheckV1 has not yet been implemented")
+		}),
+		UserGetV1UserIDHandler: user.GetV1UserIDHandlerFunc(func(params user.GetV1UserIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation user.GetV1UserID has not yet been implemented")
+		}),
+		UserPostV1UserHandler: user.PostV1UserHandlerFunc(func(params user.PostV1UserParams) middleware.Responder {
+			return middleware.NotImplemented("operation user.PostV1User has not yet been implemented")
+		}),
+		UserPutV1UserIDHandler: user.PutV1UserIDHandlerFunc(func(params user.PutV1UserIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation user.PutV1UserID has not yet been implemented")
 		}),
 	}
 }
@@ -85,6 +95,12 @@ type RollpayAPI struct {
 
 	// HealthCheckV1Handler sets the operation handler for the check v1 operation
 	HealthCheckV1Handler health.CheckV1Handler
+	// UserGetV1UserIDHandler sets the operation handler for the get v1 user ID operation
+	UserGetV1UserIDHandler user.GetV1UserIDHandler
+	// UserPostV1UserHandler sets the operation handler for the post v1 user operation
+	UserPostV1UserHandler user.PostV1UserHandler
+	// UserPutV1UserIDHandler sets the operation handler for the put v1 user ID operation
+	UserPutV1UserIDHandler user.PutV1UserIDHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -164,6 +180,15 @@ func (o *RollpayAPI) Validate() error {
 
 	if o.HealthCheckV1Handler == nil {
 		unregistered = append(unregistered, "health.CheckV1Handler")
+	}
+	if o.UserGetV1UserIDHandler == nil {
+		unregistered = append(unregistered, "user.GetV1UserIDHandler")
+	}
+	if o.UserPostV1UserHandler == nil {
+		unregistered = append(unregistered, "user.PostV1UserHandler")
+	}
+	if o.UserPutV1UserIDHandler == nil {
+		unregistered = append(unregistered, "user.PutV1UserIDHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -257,6 +282,18 @@ func (o *RollpayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/v1/healthz"] = health.NewCheckV1(o.context, o.HealthCheckV1Handler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/v1/user/{id}"] = user.NewGetV1UserID(o.context, o.UserGetV1UserIDHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/v1/user"] = user.NewPostV1User(o.context, o.UserPostV1UserHandler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/v1/user/{id}"] = user.NewPutV1UserID(o.context, o.UserPutV1UserIDHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

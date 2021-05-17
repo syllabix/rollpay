@@ -19,7 +19,7 @@ type Settings struct {
 }
 
 // ConnStr returns a postgres connection string
-func (c *Settings) ConnStr() string {
+func (c *Settings) String() string {
 	return fmt.Sprintf("dbname=%s sslmode=%s user=%s password=%s host=%s port=%s",
 		c.DBName,
 		c.SSLMode,

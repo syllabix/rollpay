@@ -64,6 +64,70 @@ definitions:
         items:
           $ref: "#/definitions/FieldError"
 
+  ############################################
+  # User 
+  ############################################
+  LinkedAccount:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      alias:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time  
+  
+  User:
+    type: object
+    properties: 
+      id:
+        type: string
+        readOnly: true
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
+      avatar:
+        type: string
+        format: byte
+      username:
+        type: string
+      accounts:
+        type: array
+        items: 
+          $ref: "#/definitions/LinkedAccount"
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+  
+
+# Global Parameters
+parameters:
+  userAgent:
+    name: User-Agent
+    type: string
+    in: header
+    required: false
+    default: test-user
+
+  acceptLang:
+    name: Accept-Language
+    type: string
+    in: header
+    description: the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language
+    default: en
+    required: false
+
 # Global Response Types
 responses:
   OkResponse:
@@ -137,5 +201,71 @@ paths:
       responses:
         200:
           $ref: "#/responses/OkResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  ##############################################
+  # DIAGNOSTIC ENDPOINTS
+  ##############################################
+  /v1/user:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+
+    post:
+      tags:
+        - User
+      summary: create a new user
+      responses:
+        201:
+          description: a newly created user
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        409:
+          $ref: "#/responses/409ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  /v1/user/{id}:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: the id of the user
+    
+    get:
+      tags:
+        - User
+      summary: get a user by id
+      responses:
+        200:
+          description: a 
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+    put:
+      tags:
+        - User
+      summary: update a user by id
+      responses:
+        200:
+          description: a successfully updated user
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"

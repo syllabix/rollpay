@@ -250,7 +250,7 @@ func testLinkedAccountsExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := LinkedAccountExists(ctx, tx, o.ItemID)
+	e, err := LinkedAccountExists(ctx, tx, o.ID)
 	if err != nil {
 		t.Errorf("Unable to check if LinkedAccount exists: %s", err)
 	}
@@ -276,7 +276,7 @@ func testLinkedAccountsFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	linkedAccountFound, err := FindLinkedAccount(ctx, tx, o.ItemID)
+	linkedAccountFound, err := FindLinkedAccount(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -637,7 +637,7 @@ func testLinkedAccountsSelect(t *testing.T) {
 }
 
 var (
-	linkedAccountDBTypes = map[string]string{`ItemID`: `text`, `AccessToken`: `text`, `Alias`: `text`, `UserID`: `bigint`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
+	linkedAccountDBTypes = map[string]string{`ID`: `bigint`, `Alias`: `text`, `ItemID`: `text`, `AccessToken`: `text`, `UserID`: `bigint`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
 	_                    = bytes.MinRead
 )
 

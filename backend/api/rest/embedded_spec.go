@@ -51,6 +51,102 @@ func init() {
           }
         }
       }
+    },
+    "/v1/user": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "create a new user",
+        "responses": {
+          "201": {
+            "description": "a newly created user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "409": {
+            "$ref": "#/responses/409ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        }
+      ]
+    },
+    "/v1/user/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "get a user by id",
+        "responses": {
+          "200": {
+            "description": "a",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "update a user by id",
+        "responses": {
+          "200": {
+            "description": "a successfully updated user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        },
+        {
+          "type": "string",
+          "description": "the id of the user",
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -66,6 +162,26 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "email"
+        }
+      }
+    },
+    "LinkedAccount": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -92,6 +208,44 @@ func init() {
         }
       }
     },
+    "User": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkedAccount"
+          }
+        },
+        "avatar": {
+          "type": "string",
+          "format": "byte"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "password": {
+          "type": "string",
+          "format": "password"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
     "ValidationError": {
       "type": "object",
       "properties": {
@@ -109,6 +263,21 @@ func init() {
           "type": "string"
         }
       }
+    }
+  },
+  "parameters": {
+    "acceptLang": {
+      "type": "string",
+      "default": "en",
+      "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+      "name": "Accept-Language",
+      "in": "header"
+    },
+    "userAgent": {
+      "type": "string",
+      "default": "test-user",
+      "name": "User-Agent",
+      "in": "header"
     }
   },
   "responses": {
@@ -220,6 +389,143 @@ func init() {
           }
         }
       }
+    },
+    "/v1/user": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "create a new user",
+        "responses": {
+          "201": {
+            "description": "a newly created user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "409": {
+            "description": "A conflict with an existing resource or process occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        }
+      ]
+    },
+    "/v1/user/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "get a user by id",
+        "responses": {
+          "200": {
+            "description": "a",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "update a user by id",
+        "responses": {
+          "200": {
+            "description": "a successfully updated user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "description": "the id of the user",
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -235,6 +541,26 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "email"
+        }
+      }
+    },
+    "LinkedAccount": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -261,6 +587,44 @@ func init() {
         }
       }
     },
+    "User": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkedAccount"
+          }
+        },
+        "avatar": {
+          "type": "string",
+          "format": "byte"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "password": {
+          "type": "string",
+          "format": "password"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
     "ValidationError": {
       "type": "object",
       "properties": {
@@ -278,6 +642,21 @@ func init() {
           "type": "string"
         }
       }
+    }
+  },
+  "parameters": {
+    "acceptLang": {
+      "type": "string",
+      "default": "en",
+      "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+      "name": "Accept-Language",
+      "in": "header"
+    },
+    "userAgent": {
+      "type": "string",
+      "default": "test-user",
+      "name": "User-Agent",
+      "in": "header"
     }
   },
   "responses": {

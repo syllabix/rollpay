@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -43,8 +44,8 @@ func Load() (ServerSettings, PlaidSettings, db.Settings) {
 			Port:         os.Getenv("PORT"),
 			DocsURL:      os.Getenv("DOCS_PATH"),
 			ProfilerPort: os.Getenv("PPROF"),
-			ReadTimeout:  getEnvAsDur("READ_TIMEOUT"),
-			WriteTimeout: getEnvAsDur("WRITE_TIMEOUT"),
+			ReadTimeout:  getEnvAsDur("READ_TIMEOUT", time.Minute*2),
+			WriteTimeout: getEnvAsDur("WRITE_TIMEOUT", time.Minute*2),
 		},
 		PlaidSettings{
 			ClientID:     os.Getenv("PLAID_CLIENT_ID"),
@@ -54,17 +55,36 @@ func Load() (ServerSettings, PlaidSettings, db.Settings) {
 			CountryCodes: os.Getenv("PLAID_COUNTRY_CODES"),
 			RedirectURI:  os.Getenv("PLAID_REDIRECT_URI"),
 		},
-		db.Settings{}
+		db.Settings{
+			DBName:             os.Getenv("DB_NAME"),
+			SSLMode:            os.Getenv("SSL_MODE"),
+			User:               os.Getenv("USER"),
+			Password:           os.Getenv("PASSWORD"),
+			Host:               os.Getenv("HOST"),
+			Port:               os.Getenv("PORT"),
+			MaxConnections:     getEnvAsInt("MAX_CONNS", 5),
+			MaxIdleConnections: getEnvAsInt("MAX_IDLE_CONNS", 5),
+			MaxConnLifetime:    getEnvAsDur("MAX_CONN_LIFETIME", time.Hour),
+		}
 }
 
 // getEnvAsDur returns a duration value for and environment variable key
 // if the key is empty or value is empty (or not in valid duration syntax)
-// this func returns a default of 5 seconds
-func getEnvAsDur(key string) time.Duration {
+// this func returns the provided default
+func getEnvAsDur(key string, def time.Duration) time.Duration {
 	val := os.Getenv(key)
 	dur, err := time.ParseDuration(val)
 	if err != nil {
-		return time.Duration(time.Second * 5)
+		return def
 	}
 	return dur
+}
+
+func getEnvAsInt(key string, def int) int {
+	val := os.Getenv(key)
+	num, err := strconv.Atoi(val)
+	if err != nil {
+		return def
+	}
+	return num
 }

@@ -24,9 +24,10 @@ import (
 
 // LinkedAccount is an object representing the database table.
 type LinkedAccount struct {
+	ID          int64     `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
+	Alias       string    `db:"alias" boil:"alias" json:"alias" toml:"alias" yaml:"alias"`
 	ItemID      string    `db:"item_id" boil:"item_id" json:"item_id" toml:"item_id" yaml:"item_id"`
 	AccessToken string    `db:"access_token" boil:"access_token" json:"access_token" toml:"access_token" yaml:"access_token"`
-	Alias       string    `db:"alias" boil:"alias" json:"alias" toml:"alias" yaml:"alias"`
 	UserID      int64     `db:"user_id" boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	CreatedAt   time.Time `db:"created_at" boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
@@ -37,17 +38,19 @@ type LinkedAccount struct {
 }
 
 var LinkedAccountColumns = struct {
+	ID          string
+	Alias       string
 	ItemID      string
 	AccessToken string
-	Alias       string
 	UserID      string
 	CreatedAt   string
 	UpdatedAt   string
 	DeletedAt   string
 }{
+	ID:          "id",
+	Alias:       "alias",
 	ItemID:      "item_id",
 	AccessToken: "access_token",
-	Alias:       "alias",
 	UserID:      "user_id",
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
@@ -55,29 +58,6 @@ var LinkedAccountColumns = struct {
 }
 
 // Generated where
-
-type whereHelperstring struct{ field string }
-
-func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperstring) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
 
 type whereHelperint64 struct{ field string }
 
@@ -95,6 +75,29 @@ func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
 	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
 func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelperstring struct{ field string }
+
+func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperstring) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
@@ -147,17 +150,19 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 }
 
 var LinkedAccountWhere = struct {
+	ID          whereHelperint64
+	Alias       whereHelperstring
 	ItemID      whereHelperstring
 	AccessToken whereHelperstring
-	Alias       whereHelperstring
 	UserID      whereHelperint64
 	CreatedAt   whereHelpertime_Time
 	UpdatedAt   whereHelpertime_Time
 	DeletedAt   whereHelpernull_Time
 }{
+	ID:          whereHelperint64{field: "\"linked_accounts\".\"id\""},
+	Alias:       whereHelperstring{field: "\"linked_accounts\".\"alias\""},
 	ItemID:      whereHelperstring{field: "\"linked_accounts\".\"item_id\""},
 	AccessToken: whereHelperstring{field: "\"linked_accounts\".\"access_token\""},
-	Alias:       whereHelperstring{field: "\"linked_accounts\".\"alias\""},
 	UserID:      whereHelperint64{field: "\"linked_accounts\".\"user_id\""},
 	CreatedAt:   whereHelpertime_Time{field: "\"linked_accounts\".\"created_at\""},
 	UpdatedAt:   whereHelpertime_Time{field: "\"linked_accounts\".\"updated_at\""},
@@ -185,10 +190,10 @@ func (*linkedAccountR) NewStruct() *linkedAccountR {
 type linkedAccountL struct{}
 
 var (
-	linkedAccountAllColumns            = []string{"item_id", "access_token", "alias", "user_id", "created_at", "updated_at", "deleted_at"}
-	linkedAccountColumnsWithoutDefault = []string{"item_id", "access_token", "alias", "user_id", "deleted_at"}
-	linkedAccountColumnsWithDefault    = []string{"created_at", "updated_at"}
-	linkedAccountPrimaryKeyColumns     = []string{"item_id"}
+	linkedAccountAllColumns            = []string{"id", "alias", "item_id", "access_token", "user_id", "created_at", "updated_at", "deleted_at"}
+	linkedAccountColumnsWithoutDefault = []string{"alias", "item_id", "access_token", "user_id", "deleted_at"}
+	linkedAccountColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
+	linkedAccountPrimaryKeyColumns     = []string{"id"}
 )
 
 type (
@@ -410,7 +415,7 @@ func (o *LinkedAccount) SetUser(ctx context.Context, exec boil.ContextExecutor, 
 		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
 		strmangle.WhereClause("\"", "\"", 2, linkedAccountPrimaryKeyColumns),
 	)
-	values := []interface{}{related.ID, o.ItemID}
+	values := []interface{}{related.ID, o.ID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -449,7 +454,7 @@ func LinkedAccounts(mods ...qm.QueryMod) linkedAccountQuery {
 
 // FindLinkedAccount retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindLinkedAccount(ctx context.Context, exec boil.ContextExecutor, itemID string, selectCols ...string) (*LinkedAccount, error) {
+func FindLinkedAccount(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*LinkedAccount, error) {
 	linkedAccountObj := &LinkedAccount{}
 
 	sel := "*"
@@ -457,10 +462,10 @@ func FindLinkedAccount(ctx context.Context, exec boil.ContextExecutor, itemID st
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"linked_accounts\" where \"item_id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"linked_accounts\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
-	q := queries.Raw(query, itemID)
+	q := queries.Raw(query, iD)
 
 	err := q.Bind(ctx, exec, linkedAccountObj)
 	if err != nil {
@@ -821,12 +826,12 @@ func (o *LinkedAccount) Delete(ctx context.Context, exec boil.ContextExecutor, h
 	)
 	if hardDelete {
 		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), linkedAccountPrimaryKeyMapping)
-		sql = "DELETE FROM \"linked_accounts\" WHERE \"item_id\"=$1"
+		sql = "DELETE FROM \"linked_accounts\" WHERE \"id\"=$1"
 	} else {
 		currTime := time.Now().In(boil.GetLocation())
 		o.DeletedAt = null.TimeFrom(currTime)
 		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"linked_accounts\" SET %s WHERE \"item_id\"=$2",
+		sql = fmt.Sprintf("UPDATE \"linked_accounts\" SET %s WHERE \"id\"=$2",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 		)
 		valueMapping, err := queries.BindMapping(linkedAccountType, linkedAccountMapping, append(wl, linkedAccountPrimaryKeyColumns...))
@@ -933,7 +938,7 @@ func (o LinkedAccountSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *LinkedAccount) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindLinkedAccount(ctx, exec, o.ItemID)
+	ret, err := FindLinkedAccount(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -973,16 +978,16 @@ func (o *LinkedAccountSlice) ReloadAll(ctx context.Context, exec boil.ContextExe
 }
 
 // LinkedAccountExists checks if the LinkedAccount row exists.
-func LinkedAccountExists(ctx context.Context, exec boil.ContextExecutor, itemID string) (bool, error) {
+func LinkedAccountExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"linked_accounts\" where \"item_id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"linked_accounts\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, itemID)
+		fmt.Fprintln(writer, iD)
 	}
-	row := exec.QueryRowContext(ctx, sql, itemID)
+	row := exec.QueryRowContext(ctx, sql, iD)
 
 	err := row.Scan(&exists)
 	if err != nil {

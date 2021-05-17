@@ -24,14 +24,14 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID        int64       `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
-	Email     string      `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
-	Password  string      `db:"password" boil:"password" json:"password" toml:"password" yaml:"password"`
-	Username  null.String `db:"username" boil:"username" json:"username,omitempty" toml:"username" yaml:"username,omitempty"`
-	Avatar    null.Bytes  `db:"avatar" boil:"avatar" json:"avatar,omitempty" toml:"avatar" yaml:"avatar,omitempty"`
-	CreatedAt time.Time   `db:"created_at" boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time   `db:"updated_at" boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt null.Time   `db:"deleted_at" boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	ID        int64      `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
+	Email     string     `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
+	Password  string     `db:"password" boil:"password" json:"password" toml:"password" yaml:"password"`
+	Username  string     `db:"username" boil:"username" json:"username" toml:"username" yaml:"username"`
+	Avatar    null.Bytes `db:"avatar" boil:"avatar" json:"avatar,omitempty" toml:"avatar" yaml:"avatar,omitempty"`
+	CreatedAt time.Time  `db:"created_at" boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt time.Time  `db:"updated_at" boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	DeletedAt null.Time  `db:"deleted_at" boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *userR `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -58,29 +58,6 @@ var UserColumns = struct {
 }
 
 // Generated where
-
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
 
 type whereHelpernull_Bytes struct{ field string }
 
@@ -109,7 +86,7 @@ var UserWhere = struct {
 	ID        whereHelperint64
 	Email     whereHelperstring
 	Password  whereHelperstring
-	Username  whereHelpernull_String
+	Username  whereHelperstring
 	Avatar    whereHelpernull_Bytes
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
@@ -118,7 +95,7 @@ var UserWhere = struct {
 	ID:        whereHelperint64{field: "\"users\".\"id\""},
 	Email:     whereHelperstring{field: "\"users\".\"email\""},
 	Password:  whereHelperstring{field: "\"users\".\"password\""},
-	Username:  whereHelpernull_String{field: "\"users\".\"username\""},
+	Username:  whereHelperstring{field: "\"users\".\"username\""},
 	Avatar:    whereHelpernull_Bytes{field: "\"users\".\"avatar\""},
 	CreatedAt: whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"users\".\"updated_at\""},
@@ -375,7 +352,7 @@ func (o *User) AddLinkedAccounts(ctx context.Context, exec boil.ContextExecutor,
 				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
 				strmangle.WhereClause("\"", "\"", 2, linkedAccountPrimaryKeyColumns),
 			)
-			values := []interface{}{o.ID, rel.ItemID}
+			values := []interface{}{o.ID, rel.ID}
 
 			if boil.IsDebug(ctx) {
 				writer := boil.DebugWriterFrom(ctx)
