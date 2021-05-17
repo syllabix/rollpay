@@ -5,10 +5,11 @@ import (
 
 	"github.com/syllabix/rollpay/backend/api/model"
 	"github.com/syllabix/rollpay/backend/datastore/user"
+	"github.com/syllabix/rollpay/backend/util/id"
 )
 
 type Service interface {
-	Get(ctx context.Context, id int64) (model.User, error)
+	Get(ctx context.Context, id string) (model.User, error)
 	Create(context.Context, model.User) (model.User, error)
 	Update(context.Context, model.User) (model.User, error)
 }
@@ -17,8 +18,13 @@ type service struct {
 	store user.Store
 }
 
-func (s service) Get(ctx context.Context, id int64) (model.User, error) {
-	user, err := s.store.GetByID(ctx, id)
+func (s service) Get(ctx context.Context, userID string) (model.User, error) {
+	uID, err := id.ToInternal(userID)
+	if err != nil {
+		return failure(err)
+	}
+
+	user, err := s.store.GetByID(ctx, uID)
 	if err != nil {
 		return failure(err)
 	}

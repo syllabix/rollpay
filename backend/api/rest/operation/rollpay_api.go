@@ -48,11 +48,11 @@ func NewRollpayAPI(spec *loads.Document) *RollpayAPI {
 		HealthCheckV1Handler: health.CheckV1HandlerFunc(func(params health.CheckV1Params) middleware.Responder {
 			return middleware.NotImplemented("operation health.CheckV1 has not yet been implemented")
 		}),
-		UserGetV1UserIDHandler: user.GetV1UserIDHandlerFunc(func(params user.GetV1UserIDParams) middleware.Responder {
-			return middleware.NotImplemented("operation user.GetV1UserID has not yet been implemented")
+		UserCreateUserV1Handler: user.CreateUserV1HandlerFunc(func(params user.CreateUserV1Params) middleware.Responder {
+			return middleware.NotImplemented("operation user.CreateUserV1 has not yet been implemented")
 		}),
-		UserPostV1UserHandler: user.PostV1UserHandlerFunc(func(params user.PostV1UserParams) middleware.Responder {
-			return middleware.NotImplemented("operation user.PostV1User has not yet been implemented")
+		UserGetUserByIDV1Handler: user.GetUserByIDV1HandlerFunc(func(params user.GetUserByIDV1Params) middleware.Responder {
+			return middleware.NotImplemented("operation user.GetUserByIDV1 has not yet been implemented")
 		}),
 		UserPutV1UserIDHandler: user.PutV1UserIDHandlerFunc(func(params user.PutV1UserIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation user.PutV1UserID has not yet been implemented")
@@ -95,10 +95,10 @@ type RollpayAPI struct {
 
 	// HealthCheckV1Handler sets the operation handler for the check v1 operation
 	HealthCheckV1Handler health.CheckV1Handler
-	// UserGetV1UserIDHandler sets the operation handler for the get v1 user ID operation
-	UserGetV1UserIDHandler user.GetV1UserIDHandler
-	// UserPostV1UserHandler sets the operation handler for the post v1 user operation
-	UserPostV1UserHandler user.PostV1UserHandler
+	// UserCreateUserV1Handler sets the operation handler for the create user v1 operation
+	UserCreateUserV1Handler user.CreateUserV1Handler
+	// UserGetUserByIDV1Handler sets the operation handler for the get user by ID v1 operation
+	UserGetUserByIDV1Handler user.GetUserByIDV1Handler
 	// UserPutV1UserIDHandler sets the operation handler for the put v1 user ID operation
 	UserPutV1UserIDHandler user.PutV1UserIDHandler
 
@@ -181,11 +181,11 @@ func (o *RollpayAPI) Validate() error {
 	if o.HealthCheckV1Handler == nil {
 		unregistered = append(unregistered, "health.CheckV1Handler")
 	}
-	if o.UserGetV1UserIDHandler == nil {
-		unregistered = append(unregistered, "user.GetV1UserIDHandler")
+	if o.UserCreateUserV1Handler == nil {
+		unregistered = append(unregistered, "user.CreateUserV1Handler")
 	}
-	if o.UserPostV1UserHandler == nil {
-		unregistered = append(unregistered, "user.PostV1UserHandler")
+	if o.UserGetUserByIDV1Handler == nil {
+		unregistered = append(unregistered, "user.GetUserByIDV1Handler")
 	}
 	if o.UserPutV1UserIDHandler == nil {
 		unregistered = append(unregistered, "user.PutV1UserIDHandler")
@@ -282,14 +282,14 @@ func (o *RollpayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/v1/healthz"] = health.NewCheckV1(o.context, o.HealthCheckV1Handler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/v1/user/{id}"] = user.NewGetV1UserID(o.context, o.UserGetV1UserIDHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/v1/user"] = user.NewPostV1User(o.context, o.UserPostV1UserHandler)
+	o.handlers["POST"]["/v1/user"] = user.NewCreateUserV1(o.context, o.UserCreateUserV1Handler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/v1/user/{id}"] = user.NewGetUserByIDV1(o.context, o.UserGetUserByIDV1Handler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

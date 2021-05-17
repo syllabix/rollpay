@@ -3,8 +3,11 @@ package backend
 import (
 	"context"
 
+	"github.com/syllabix/rollpay/backend/api"
 	"github.com/syllabix/rollpay/backend/config"
+	"github.com/syllabix/rollpay/backend/datastore"
 	"github.com/syllabix/rollpay/backend/db"
+	"github.com/syllabix/rollpay/backend/service"
 	"github.com/syllabix/rollpay/backend/service/payment"
 	"github.com/syllabix/rollpay/backend/util/observabilty"
 	"github.com/syllabix/rollpay/backend/util/profiler"
@@ -39,9 +42,12 @@ func NewApplication(options ...Option) Application {
 		// application dependencies
 		fx.Provide(config.Load),
 		db.Module,
+		api.Module,
 		web.Module,
 		observabilty.Module,
 		payment.Module,
+		service.Module,
+		datastore.Module,
 
 		// start the engines
 		fx.Invoke(start),

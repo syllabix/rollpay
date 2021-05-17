@@ -36,18 +36,19 @@ func SetupRollpay(lc fx.Lifecycle, config Settings, log *zap.Logger) (Rollpay, e
 		return Rollpay{}, fmt.Errorf("unable to establish a connection with rollpay db: %w", err)
 	}
 
+	err = ensure(db, log)
+	if err != nil {
+		return Rollpay{}, fmt.Errorf("unable to establish a connection with rollpay db: %w", err)
+	}
+
+	count, err := runMigrations(db)
+	if err != nil {
+		return Rollpay{}, fmt.Errorf("database migrations failed: %w", err)
+	}
+	log.Info("rollpay database migrations completed ok", zap.Int("count", count))
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			err = ensure(db, log)
-			if err != nil {
-				return fmt.Errorf("unable to establish a connection with rollpay db: %w", err)
-			}
-
-			count, err := runMigrations(db)
-			if err != nil {
-				return fmt.Errorf("database migrations failed: %w", err)
-			}
-			log.Info("rollpay database migrations completed ok", zap.Int("count", count))
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
