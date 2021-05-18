@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="/brand/rollpay_logo_thumb.png" />
+</p>
+
 # Rollpay
 An experiment with the Plaid EU payment products
 
