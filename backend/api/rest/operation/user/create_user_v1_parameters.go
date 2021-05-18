@@ -6,12 +6,23 @@ package user
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 )
+
+// CreateUserV1MaxParseMemory sets the maximum size in bytes for
+// the multipart form parser for this operation.
+//
+// The default value is 32 MB.
+// The multipart parser stores up to this + 10MB.
+var CreateUserV1MaxParseMemory int64 = 32 << 20
 
 // NewCreateUserV1Params creates a new CreateUserV1Params object
 // with the default values initialized.
@@ -50,6 +61,26 @@ type CreateUserV1Params struct {
 	  Default: "test-user"
 	*/
 	UserAgent *string
+	/*the users avatar
+	  Required: true
+	  In: formData
+	*/
+	Avatar io.ReadCloser
+	/*
+	  Required: true
+	  In: formData
+	*/
+	Email strfmt.Email
+	/*
+	  Required: true
+	  In: formData
+	*/
+	Password strfmt.Password
+	/*
+	  Required: true
+	  In: formData
+	*/
+	Username string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -61,11 +92,45 @@ func (o *CreateUserV1Params) BindRequest(r *http.Request, route *middleware.Matc
 
 	o.HTTPRequest = r
 
+	if err := r.ParseMultipartForm(CreateUserV1MaxParseMemory); err != nil {
+		if err != http.ErrNotMultipart {
+			return errors.New(400, "%v", err)
+		} else if err := r.ParseForm(); err != nil {
+			return errors.New(400, "%v", err)
+		}
+	}
+	fds := runtime.Values(r.Form)
+
 	if err := o.bindAcceptLanguage(r.Header[http.CanonicalHeaderKey("Accept-Language")], true, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.bindUserAgent(r.Header[http.CanonicalHeaderKey("User-Agent")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	avatar, avatarHeader, err := r.FormFile("avatar")
+	if err != nil {
+		res = append(res, errors.New(400, "reading file %q failed: %v", "avatar", err))
+	} else if err := o.bindAvatar(avatar, avatarHeader); err != nil {
+		// Required: true
+		res = append(res, err)
+	} else {
+		o.Avatar = &runtime.File{Data: avatar, Header: avatarHeader}
+	}
+
+	fdEmail, fdhkEmail, _ := fds.GetOK("email")
+	if err := o.bindEmail(fdEmail, fdhkEmail, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	fdPassword, fdhkPassword, _ := fds.GetOK("password")
+	if err := o.bindPassword(fdPassword, fdhkPassword, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	fdUsername, fdhkUsername, _ := fds.GetOK("username")
+	if err := o.bindUsername(fdUsername, fdhkUsername, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -106,6 +171,111 @@ func (o *CreateUserV1Params) bindUserAgent(rawData []string, hasKey bool, format
 		return nil
 	}
 	o.UserAgent = &raw
+
+	return nil
+}
+
+// bindAvatar binds file parameter Avatar.
+//
+// The only supported validations on files are MinLength and MaxLength
+func (o *CreateUserV1Params) bindAvatar(file multipart.File, header *multipart.FileHeader) error {
+	return nil
+}
+
+// bindEmail binds and validates parameter Email from formData.
+func (o *CreateUserV1Params) bindEmail(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("email", "formData", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("email", "formData", raw); err != nil {
+		return err
+	}
+
+	// Format: email
+	value, err := formats.Parse("email", raw)
+	if err != nil {
+		return errors.InvalidType("email", "formData", "strfmt.Email", raw)
+	}
+	o.Email = *(value.(*strfmt.Email))
+
+	if err := o.validateEmail(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateEmail carries on validations for parameter Email
+func (o *CreateUserV1Params) validateEmail(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("email", "formData", "email", o.Email.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindPassword binds and validates parameter Password from formData.
+func (o *CreateUserV1Params) bindPassword(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("password", "formData", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("password", "formData", raw); err != nil {
+		return err
+	}
+
+	// Format: password
+	value, err := formats.Parse("password", raw)
+	if err != nil {
+		return errors.InvalidType("password", "formData", "strfmt.Password", raw)
+	}
+	o.Password = *(value.(*strfmt.Password))
+
+	if err := o.validatePassword(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePassword carries on validations for parameter Password
+func (o *CreateUserV1Params) validatePassword(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("password", "formData", "password", o.Password.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindUsername binds and validates parameter Username from formData.
+func (o *CreateUserV1Params) bindUsername(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("username", "formData", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("username", "formData", raw); err != nil {
+		return err
+	}
+	o.Username = raw
 
 	return nil
 }

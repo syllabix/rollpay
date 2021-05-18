@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/syllabix/logger"
 	"github.com/syllabix/rollpay/backend"
-	"github.com/syllabix/rollpay/backend/util/banner"
+	"github.com/syllabix/rollpay/backend/common/banner"
 	"go.uber.org/zap"
 )
 

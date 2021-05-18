@@ -5,8 +5,9 @@ import (
 	"fmt"
 
 	"github.com/syllabix/rollpay/backend/api/model"
+	"github.com/syllabix/rollpay/backend/common/id"
 	"github.com/syllabix/rollpay/backend/datastore/user"
-	"github.com/syllabix/rollpay/backend/util/id"
+	"github.com/syllabix/rollpay/backend/service/user/password"
 )
 
 var (
@@ -20,7 +21,8 @@ func failure(reason error) (u model.User, err error) {
 	case errors.Is(reason, user.ErrNotFound):
 		err = ErrNotFound
 
-	case errors.Is(reason, id.ErrInvalid):
+	case errors.Is(reason, id.ErrInvalid),
+		errors.Is(reason, password.ErrSizeExceeded):
 		err = fmt.Errorf("%w: %v", ErrInvalid, reason)
 
 	default:

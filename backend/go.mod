@@ -3,6 +3,7 @@ module github.com/syllabix/rollpay/backend
 go 1.16
 
 require (
+	github.com/disintegration/imaging v1.6.2
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-openapi/errors v0.20.0
 	github.com/go-openapi/loads v0.20.2
@@ -17,6 +18,8 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/lib/pq v1.10.2
+	github.com/muesli/smartcrop v0.3.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/plaid/plaid-go v0.0.0-20210507192632-6f72eeaab257
 	github.com/rubenv/sql-migrate v0.0.0-20210408115534-a32ed26c37ea
 	github.com/spf13/viper v1.7.1

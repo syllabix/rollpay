@@ -24,14 +24,14 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID        int64      `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
-	Email     string     `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
-	Password  string     `db:"password" boil:"password" json:"password" toml:"password" yaml:"password"`
-	Username  string     `db:"username" boil:"username" json:"username" toml:"username" yaml:"username"`
-	Avatar    null.Bytes `db:"avatar" boil:"avatar" json:"avatar,omitempty" toml:"avatar" yaml:"avatar,omitempty"`
-	CreatedAt time.Time  `db:"created_at" boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time  `db:"updated_at" boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt null.Time  `db:"deleted_at" boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	ID        int64     `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
+	Email     string    `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
+	Password  string    `db:"password" boil:"password" json:"password" toml:"password" yaml:"password"`
+	Username  string    `db:"username" boil:"username" json:"username" toml:"username" yaml:"username"`
+	Avatar    []byte    `db:"avatar" boil:"avatar" json:"avatar" toml:"avatar" yaml:"avatar"`
+	CreatedAt time.Time `db:"created_at" boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	DeletedAt null.Time `db:"deleted_at" boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *userR `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -59,35 +59,21 @@ var UserColumns = struct {
 
 // Generated where
 
-type whereHelpernull_Bytes struct{ field string }
+type whereHelper__byte struct{ field string }
 
-func (w whereHelpernull_Bytes) EQ(x null.Bytes) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Bytes) NEQ(x null.Bytes) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Bytes) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Bytes) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-func (w whereHelpernull_Bytes) LT(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Bytes) LTE(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Bytes) GT(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Bytes) GTE(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
+func (w whereHelper__byte) EQ(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelper__byte) NEQ(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelper__byte) LT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelper__byte) LTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelper__byte) GT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelper__byte) GTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
 
 var UserWhere = struct {
 	ID        whereHelperint64
 	Email     whereHelperstring
 	Password  whereHelperstring
 	Username  whereHelperstring
-	Avatar    whereHelpernull_Bytes
+	Avatar    whereHelper__byte
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 	DeletedAt whereHelpernull_Time
@@ -96,7 +82,7 @@ var UserWhere = struct {
 	Email:     whereHelperstring{field: "\"users\".\"email\""},
 	Password:  whereHelperstring{field: "\"users\".\"password\""},
 	Username:  whereHelperstring{field: "\"users\".\"username\""},
-	Avatar:    whereHelpernull_Bytes{field: "\"users\".\"avatar\""},
+	Avatar:    whereHelper__byte{field: "\"users\".\"avatar\""},
 	CreatedAt: whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 	DeletedAt: whereHelpernull_Time{field: "\"users\".\"deleted_at\""},

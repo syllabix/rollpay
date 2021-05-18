@@ -217,6 +217,29 @@ paths:
         - User
       operationId: CreateUserV1
       summary: create a new user
+      consumes:
+         - multipart/form-data
+      parameters:
+         - in: formData
+           name: avatar
+           type: file
+           description: the users avatar
+           required: true
+         - in: formData
+           name: email
+           type: string
+           format: email
+           required: true
+         - in: formData
+           name: password
+           type: string
+           format: password
+           required: true
+         - in: formData
+           name: username
+           type: string
+           required: true
+
       responses:
         201:
           description: a newly created user

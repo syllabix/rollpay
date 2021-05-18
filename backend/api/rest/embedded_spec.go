@@ -54,11 +54,43 @@ func init() {
     },
     "/v1/user": {
       "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "User"
         ],
         "summary": "create a new user",
         "operationId": "CreateUserV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the users avatar",
+            "name": "avatar",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "email",
+            "name": "email",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "password",
+            "name": "password",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "username",
+            "in": "formData",
+            "required": true
+          }
+        ],
         "responses": {
           "201": {
             "description": "a newly created user",
@@ -394,11 +426,43 @@ func init() {
     },
     "/v1/user": {
       "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "User"
         ],
         "summary": "create a new user",
         "operationId": "CreateUserV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the users avatar",
+            "name": "avatar",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "email",
+            "name": "email",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "password",
+            "name": "password",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "username",
+            "in": "formData",
+            "required": true
+          }
+        ],
         "responses": {
           "201": {
             "description": "a newly created user",

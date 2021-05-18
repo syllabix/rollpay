@@ -6,6 +6,7 @@ import (
 	"github.com/syllabix/rollpay/backend/datastore/model"
 	"github.com/syllabix/rollpay/backend/db"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type Store struct {
@@ -13,7 +14,10 @@ type Store struct {
 }
 
 func (s Store) GetByID(ctx context.Context, id int64) (model.User, error) {
-	user, err := model.FindUser(ctx, s.db, id)
+	user, err := model.Users(
+		model.UserWhere.ID.EQ(id),
+		qm.Load(model.UserRels.LinkedAccounts),
+	).One(ctx, s.db)
 	if err != nil {
 		return failure(err)
 	}

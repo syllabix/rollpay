@@ -20,6 +20,9 @@ type Controller struct {
 func (ctrl *Controller) Register(api *operation.RollpayAPI) {
 	api.UserGetUserByIDV1Handler = user.
 		GetUserByIDV1HandlerFunc(ctrl.GetUserByID)
+
+	api.UserCreateUserV1Handler = user.
+		CreateUserV1HandlerFunc(ctrl.CreateUser)
 }
 
 func (ctrl *Controller) GetUserByID(params user.GetUserByIDV1Params) middleware.Responder {
@@ -45,6 +48,21 @@ func (ctrl *Controller) GetUserByID(params user.GetUserByIDV1Params) middleware.
 		return user.NewCreateUserV1InternalServerError().
 			WithPayload(&model.StandardError{
 				Message: "o wow, something didn't go quite right. please grab a cool beverage and try again",
+			})
+	}
+}
+
+func (ctrl *Controller) CreateUser(params user.CreateUserV1Params) middleware.Responder {
+	newUser, err := ctrl.srv.Create(params)
+	switch {
+	case err == nil:
+		return user.NewCreateUserV1Created().
+			WithPayload(&newUser)
+
+	default:
+		return user.NewCreateUserV1InternalServerError().
+			WithPayload(&model.StandardError{
+				Message: "oops, something didn't work out as expected on our end. give our systems a minute or two and try again",
 			})
 	}
 }

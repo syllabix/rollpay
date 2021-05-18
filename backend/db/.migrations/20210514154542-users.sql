@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     email text NOT NULL CONSTRAINT user_email_uq UNIQUE,
     password text NOT NULL,
     username text NOT NULL,
-    avatar bytea NULL,
+    avatar bytea NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT ('now'::text)::timestamp with time zone,
     updated_at timestamp with time zone NOT NULL DEFAULT ('now'::text)::timestamp with time zone,
     deleted_at timestamp with time zone NULL

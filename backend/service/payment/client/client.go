@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/plaid/plaid-go/plaid"
+	"github.com/syllabix/rollpay/backend/common/retryable"
 	"github.com/syllabix/rollpay/backend/config"
-	"github.com/syllabix/rollpay/backend/util/retryable"
 )
 
 type Client struct {

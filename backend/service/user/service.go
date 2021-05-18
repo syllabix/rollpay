@@ -4,14 +4,26 @@ import (
 	"context"
 
 	"github.com/syllabix/rollpay/backend/api/model"
+	api "github.com/syllabix/rollpay/backend/api/rest/operation/user"
+	"github.com/syllabix/rollpay/backend/common/id"
 	"github.com/syllabix/rollpay/backend/datastore/user"
 	"github.com/syllabix/rollpay/backend/service/user/password"
-	"github.com/syllabix/rollpay/backend/util/id"
 )
+
+// func asModel(params user.CreateUserV1Params) (model.User, error) {
+
+// 	var buf bytes.Buffer
+// 	w := base64.NewEncoder(base64.RawStdEncoding, &buf)
+// 	_, err := io.Copy(w, params.Avatar)
+// 	if err != nil {
+
+// 	}
+// 	u.Avatar
+// }
 
 type Service interface {
 	Get(ctx context.Context, id string) (model.User, error)
-	Create(context.Context, model.User) (model.User, error)
+	Create(api.CreateUserV1Params) (model.User, error)
 	Update(context.Context, model.User) (model.User, error)
 }
 
@@ -34,14 +46,18 @@ func (s service) Get(ctx context.Context, userID string) (model.User, error) {
 	return asModel(user), nil
 }
 
-func (s service) Create(ctx context.Context, user model.User) (model.User, error) {
-	pwrdhash, err := s.password.GenerateHash(user.Password.String())
+func (s service) Create(params api.CreateUserV1Params) (model.User, error) {
+	pwrdhash, err := s.password.GenerateHash(params.Password.String())
 	if err != nil {
 		return failure(err)
 	}
 
-	newUser := asNewUser(user, pwrdhash)
-	newUser, err = s.store.Create(ctx, newUser)
+	newUser, err := asNewUser(params, pwrdhash)
+	if err != nil {
+		return failure(err)
+	}
+
+	newUser, err = s.store.Create(params.HTTPRequest.Context(), newUser)
 	if err != nil {
 		return failure(err)
 	}
