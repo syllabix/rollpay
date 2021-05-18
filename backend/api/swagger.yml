@@ -139,6 +139,10 @@ definitions:
       token:
         type: string
         readOnly: true
+      expiration:
+        type: string
+        format: date-time
+        readOnly: true
 
 # Global Parameters
 parameters:
@@ -393,6 +397,8 @@ paths:
           description: a newly issued link token
           schema:
             $ref: "#/definitions/LinkToken"
+        400:
+          $ref: "#/responses/400ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"
 

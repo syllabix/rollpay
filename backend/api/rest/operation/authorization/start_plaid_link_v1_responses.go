@@ -57,6 +57,50 @@ func (o *StartPlaidLinkV1Created) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
+// StartPlaidLinkV1BadRequestCode is the HTTP code returned for type StartPlaidLinkV1BadRequest
+const StartPlaidLinkV1BadRequestCode int = 400
+
+/*StartPlaidLinkV1BadRequest The provided request was invalid.
+
+swagger:response startPlaidLinkV1BadRequest
+*/
+type StartPlaidLinkV1BadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewStartPlaidLinkV1BadRequest creates StartPlaidLinkV1BadRequest with default headers values
+func NewStartPlaidLinkV1BadRequest() *StartPlaidLinkV1BadRequest {
+
+	return &StartPlaidLinkV1BadRequest{}
+}
+
+// WithPayload adds the payload to the start plaid link v1 bad request response
+func (o *StartPlaidLinkV1BadRequest) WithPayload(payload *model.StandardError) *StartPlaidLinkV1BadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the start plaid link v1 bad request response
+func (o *StartPlaidLinkV1BadRequest) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *StartPlaidLinkV1BadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // StartPlaidLinkV1InternalServerErrorCode is the HTTP code returned for type StartPlaidLinkV1InternalServerError
 const StartPlaidLinkV1InternalServerErrorCode int = 500
 

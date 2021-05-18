@@ -11,9 +11,9 @@ import (
 )
 
 var (
+	ErrFatal         = errors.New("an unexpected system error occurred")
 	ErrNotFound      = errors.New("the requested user does not exist")
 	ErrInvalid       = errors.New("the request is invalid")
-	ErrFatal         = errors.New("an unexpected system error occurred")
 	ErrEmailReserved = errors.New("the email used has already reserved")
 )
 
@@ -30,7 +30,7 @@ func mapErr(reason error) (err error) {
 		err = fmt.Errorf("%w: %v", ErrInvalid, reason)
 
 	default:
-		err = ErrFatal
+		err = fmt.Errorf("%v: %w", ErrFatal, err)
 	}
 
 	return err

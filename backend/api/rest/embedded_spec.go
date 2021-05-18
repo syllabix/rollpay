@@ -63,6 +63,9 @@ func init() {
               "$ref": "#/definitions/LinkToken"
             }
           },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
           "500": {
             "$ref": "#/responses/500ErrorResponse"
           }
@@ -299,6 +302,11 @@ func init() {
     "LinkToken": {
       "type": "object",
       "properties": {
+        "expiration": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "token": {
           "type": "string",
           "readOnly": true
@@ -560,6 +568,12 @@ func init() {
               "$ref": "#/definitions/LinkToken"
             }
           },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "500": {
             "description": "An unexpected system or network error occured.",
             "schema": {
@@ -868,6 +882,11 @@ func init() {
     "LinkToken": {
       "type": "object",
       "properties": {
+        "expiration": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "token": {
           "type": "string",
           "readOnly": true

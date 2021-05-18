@@ -19,6 +19,11 @@ import (
 // swagger:model LinkToken
 type LinkToken struct {
 
+	// expiration
+	// Read Only: true
+	// Format: date-time
+	Expiration strfmt.DateTime `json:"expiration,omitempty"`
+
 	// token
 	// Read Only: true
 	Token string `json:"token,omitempty"`
@@ -26,12 +31,37 @@ type LinkToken struct {
 
 // Validate validates this link token
 func (m *LinkToken) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateExpiration(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *LinkToken) validateExpiration(formats strfmt.Registry) error {
+	if swag.IsZero(m.Expiration) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("expiration", "body", "date-time", m.Expiration.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // ContextValidate validate this link token based on the context it is used
 func (m *LinkToken) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateExpiration(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateToken(ctx, formats); err != nil {
 		res = append(res, err)
@@ -40,6 +70,15 @@ func (m *LinkToken) ContextValidate(ctx context.Context, formats strfmt.Registry
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *LinkToken) contextValidateExpiration(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "expiration", "body", strfmt.DateTime(m.Expiration)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

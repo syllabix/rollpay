@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/syllabix/rollpay/backend/service/token"
 	"github.com/syllabix/rollpay/backend/service/user"
 	"github.com/syllabix/rollpay/backend/service/user/password"
 	"go.uber.org/fx"
@@ -9,4 +10,5 @@ import (
 var Module = fx.Provide(
 	user.NewService,
 	password.NewManager,
+	token.NewService,
 )

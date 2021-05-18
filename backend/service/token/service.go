@@ -2,20 +2,37 @@ package token
 
 import (
 	"context"
-	"errors"
 
 	"github.com/syllabix/rollpay/backend/api/model"
 	"github.com/syllabix/rollpay/backend/common/client/payment"
+	"github.com/syllabix/rollpay/backend/common/id"
+	"github.com/syllabix/rollpay/backend/datastore/user"
 )
 
-type Service struct {
-	client payment.Client
+type Service interface {
+	IssueLinkToken(ctx context.Context, userID string) (model.LinkToken, error)
 }
 
-func IssueLinkToken(ctx context.Context, userID int64) (model.LinkToken, error) {
-	return model.LinkToken{}, errors.New("not implemented")
+type service struct {
+	store   user.Store
+	payment *payment.Client
 }
 
-func NewService(client payment.Client) Service {
-	return Service{client}
+func (s service) IssueLinkToken(ctx context.Context, userID string) (model.LinkToken, error) {
+	uID, err := id.ToInternal(userID)
+	if err != nil {
+		return failure(err)
+	}
+
+	user, err := s.store.GetByID(ctx, uID)
+	if err != nil {
+		return failure(err)
+	}
+
+	token, err := s.payment.CreateLinkToken(ctx, asPaymentUser(user))
+	if err != nil {
+		return failure(err)
+	}
+
+	return asToken(token), nil
 }

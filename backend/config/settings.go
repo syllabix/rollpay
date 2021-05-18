@@ -15,6 +15,7 @@ import (
 type PlaidSettings struct {
 	ClientID     string
 	Secret       string
+	ClientName   string
 	Environment  plaid.Environment
 	Products     string
 	CountryCodes string
@@ -55,6 +56,7 @@ func Load() (ServerSettings, PlaidSettings, db.Settings, SecuritySettings) {
 		PlaidSettings{
 			ClientID:     os.Getenv("PLAID_CLIENT_ID"),
 			Secret:       os.Getenv("PLAID_SECRET"),
+			ClientName:   os.Getenv("PLAID_CLIENT_NAME"),
 			Environment:  plaidenv.Get(os.Getenv("PLAID_ENV")),
 			Products:     os.Getenv("PLAID_PRODUCTS"),
 			CountryCodes: os.Getenv("PLAID_COUNTRY_CODES"),
