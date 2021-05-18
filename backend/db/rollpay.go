@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//go:embed .migrations/rollpay/*
+//go:embed .migrations/*.sql
 var migrations embed.FS
 
 const (
@@ -48,10 +49,8 @@ func SetupRollpay(lc fx.Lifecycle, config Settings, log *zap.Logger) (Rollpay, e
 	log.Info("rollpay database migrations completed ok", zap.Int("count", count))
 
 	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			return nil
-		},
 		OnStop: func(ctx context.Context) error {
+			log.Info("waiting for database to close...")
 			err := db.Close()
 			if err != nil {
 				return fmt.Errorf("database connection failed to close properly: %w", err)
@@ -82,8 +81,13 @@ func ensure(db *sqlx.DB, log *zap.Logger) (err error) {
 }
 
 func runMigrations(db *sqlx.DB) (count int, err error) {
+	fsys, err := fs.Sub(migrations, ".migrations")
+	if err != nil {
+		return 0, err
+	}
+
 	source := migrate.HttpFileSystemMigrationSource{
-		FileSystem: (http.FS(migrations)),
+		FileSystem: http.FS(fsys),
 	}
 
 	migrate.SetTable(migrationsTable)
