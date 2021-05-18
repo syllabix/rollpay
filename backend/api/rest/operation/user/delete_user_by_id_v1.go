@@ -13,40 +13,40 @@ import (
 	"github.com/syllabix/rollpay/backend/api/model"
 )
 
-// GetUserByIDV1HandlerFunc turns a function with the right signature into a get user by ID v1 handler
-type GetUserByIDV1HandlerFunc func(GetUserByIDV1Params, *model.Principal) middleware.Responder
+// DeleteUserByIDV1HandlerFunc turns a function with the right signature into a delete user by ID v1 handler
+type DeleteUserByIDV1HandlerFunc func(DeleteUserByIDV1Params, *model.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetUserByIDV1HandlerFunc) Handle(params GetUserByIDV1Params, principal *model.Principal) middleware.Responder {
+func (fn DeleteUserByIDV1HandlerFunc) Handle(params DeleteUserByIDV1Params, principal *model.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetUserByIDV1Handler interface for that can handle valid get user by ID v1 params
-type GetUserByIDV1Handler interface {
-	Handle(GetUserByIDV1Params, *model.Principal) middleware.Responder
+// DeleteUserByIDV1Handler interface for that can handle valid delete user by ID v1 params
+type DeleteUserByIDV1Handler interface {
+	Handle(DeleteUserByIDV1Params, *model.Principal) middleware.Responder
 }
 
-// NewGetUserByIDV1 creates a new http.Handler for the get user by ID v1 operation
-func NewGetUserByIDV1(ctx *middleware.Context, handler GetUserByIDV1Handler) *GetUserByIDV1 {
-	return &GetUserByIDV1{Context: ctx, Handler: handler}
+// NewDeleteUserByIDV1 creates a new http.Handler for the delete user by ID v1 operation
+func NewDeleteUserByIDV1(ctx *middleware.Context, handler DeleteUserByIDV1Handler) *DeleteUserByIDV1 {
+	return &DeleteUserByIDV1{Context: ctx, Handler: handler}
 }
 
-/* GetUserByIDV1 swagger:route GET /v1/user/{id} User getUserByIdV1
+/* DeleteUserByIDV1 swagger:route DELETE /v1/user/{id} User deleteUserByIdV1
 
-get a user by id
+delete a user by id
 
 */
-type GetUserByIDV1 struct {
+type DeleteUserByIDV1 struct {
 	Context *middleware.Context
-	Handler GetUserByIDV1Handler
+	Handler DeleteUserByIDV1Handler
 }
 
-func (o *GetUserByIDV1) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *DeleteUserByIDV1) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewGetUserByIDV1Params()
+	var Params = NewDeleteUserByIDV1Params()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)

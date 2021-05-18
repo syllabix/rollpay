@@ -35,8 +35,51 @@ func init() {
     "version": "dev mode"
   },
   "paths": {
+    "/v1/auth/link-token": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "summary": "start an authorzation flow for Plaid link",
+        "operationId": "StartPlaidLinkV1",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly issued link token",
+            "schema": {
+              "$ref": "#/definitions/LinkToken"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        }
+      ]
+    },
     "/v1/healthz": {
       "get": {
+        "security": [],
         "tags": [
           "Health"
         ],
@@ -54,6 +97,7 @@ func init() {
     },
     "/v1/user": {
       "post": {
+        "security": [],
         "consumes": [
           "multipart/form-data"
         ],
@@ -144,16 +188,69 @@ func init() {
         }
       },
       "put": {
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "User"
         ],
         "summary": "update a user by id",
+        "operationId": "UpdateUserByIDV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the users avatar",
+            "name": "avatar",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "format": "email",
+            "name": "email",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "format": "password",
+            "name": "password",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "name": "username",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
             "description": "a successfully updated user",
             "schema": {
               "$ref": "#/definitions/User"
             }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "409": {
+            "$ref": "#/responses/409ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "delete a user by id",
+        "operationId": "DeleteUserByIDV1",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OkResponse"
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
@@ -199,6 +296,15 @@ func init() {
         }
       }
     },
+    "LinkToken": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
     "LinkedAccount": {
       "type": "object",
       "properties": {
@@ -216,6 +322,19 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "Principal": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "integer",
+          "readOnly": true
         }
       }
     },
@@ -381,7 +500,19 @@ func init() {
         "$ref": "#/definitions/StandardResponse"
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "isAuthenticated": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "isAuthenticated": []
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -401,8 +532,61 @@ func init() {
     "version": "dev mode"
   },
   "paths": {
+    "/v1/auth/link-token": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "summary": "start an authorzation flow for Plaid link",
+        "operationId": "StartPlaidLinkV1",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly issued link token",
+            "schema": {
+              "$ref": "#/definitions/LinkToken"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        }
+      ]
+    },
     "/v1/healthz": {
       "get": {
+        "security": [],
         "tags": [
           "Health"
         ],
@@ -426,6 +610,7 @@ func init() {
     },
     "/v1/user": {
       "post": {
+        "security": [],
         "consumes": [
           "multipart/form-data"
         ],
@@ -541,15 +726,83 @@ func init() {
         }
       },
       "put": {
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "User"
         ],
         "summary": "update a user by id",
+        "operationId": "UpdateUserByIDV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the users avatar",
+            "name": "avatar",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "format": "email",
+            "name": "email",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "format": "password",
+            "name": "password",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "name": "username",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
             "description": "a successfully updated user",
             "schema": {
               "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "409": {
+            "description": "A conflict with an existing resource or process occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "delete a user by id",
+        "operationId": "DeleteUserByIDV1",
+        "responses": {
+          "200": {
+            "description": "operation was successful",
+            "schema": {
+              "$ref": "#/definitions/StandardResponse"
             }
           },
           "400": {
@@ -612,6 +865,15 @@ func init() {
         }
       }
     },
+    "LinkToken": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
     "LinkedAccount": {
       "type": "object",
       "properties": {
@@ -629,6 +891,19 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "Principal": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "integer",
+          "readOnly": true
         }
       }
     },
@@ -794,6 +1069,18 @@ func init() {
         "$ref": "#/definitions/StandardResponse"
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "isAuthenticated": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "isAuthenticated": []
+    }
+  ]
 }`))
 }

@@ -19,6 +19,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/syllabix/rollpay/backend/api/model"
+	"github.com/syllabix/rollpay/backend/api/rest/operation/authorization"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/health"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/user"
 )
@@ -52,12 +54,25 @@ func NewRollpayAPI(spec *loads.Document) *RollpayAPI {
 		UserCreateUserV1Handler: user.CreateUserV1HandlerFunc(func(params user.CreateUserV1Params) middleware.Responder {
 			return middleware.NotImplemented("operation user.CreateUserV1 has not yet been implemented")
 		}),
-		UserGetUserByIDV1Handler: user.GetUserByIDV1HandlerFunc(func(params user.GetUserByIDV1Params) middleware.Responder {
+		UserDeleteUserByIDV1Handler: user.DeleteUserByIDV1HandlerFunc(func(params user.DeleteUserByIDV1Params, principal *model.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation user.DeleteUserByIDV1 has not yet been implemented")
+		}),
+		UserGetUserByIDV1Handler: user.GetUserByIDV1HandlerFunc(func(params user.GetUserByIDV1Params, principal *model.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUserByIDV1 has not yet been implemented")
 		}),
-		UserPutV1UserIDHandler: user.PutV1UserIDHandlerFunc(func(params user.PutV1UserIDParams) middleware.Responder {
-			return middleware.NotImplemented("operation user.PutV1UserID has not yet been implemented")
+		AuthorizationStartPlaidLinkV1Handler: authorization.StartPlaidLinkV1HandlerFunc(func(params authorization.StartPlaidLinkV1Params, principal *model.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation authorization.StartPlaidLinkV1 has not yet been implemented")
 		}),
+		UserUpdateUserByIDV1Handler: user.UpdateUserByIDV1HandlerFunc(func(params user.UpdateUserByIDV1Params, principal *model.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation user.UpdateUserByIDV1 has not yet been implemented")
+		}),
+
+		// Applies when the "Authorization" header is set
+		IsAuthenticatedAuth: func(token string) (*model.Principal, error) {
+			return nil, errors.NotImplemented("api key auth (isAuthenticated) Authorization from header param [Authorization] has not yet been implemented")
+		},
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -97,14 +112,25 @@ type RollpayAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// IsAuthenticatedAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key Authorization provided in the header
+	IsAuthenticatedAuth func(string) (*model.Principal, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
+
 	// HealthCheckV1Handler sets the operation handler for the check v1 operation
 	HealthCheckV1Handler health.CheckV1Handler
 	// UserCreateUserV1Handler sets the operation handler for the create user v1 operation
 	UserCreateUserV1Handler user.CreateUserV1Handler
+	// UserDeleteUserByIDV1Handler sets the operation handler for the delete user by ID v1 operation
+	UserDeleteUserByIDV1Handler user.DeleteUserByIDV1Handler
 	// UserGetUserByIDV1Handler sets the operation handler for the get user by ID v1 operation
 	UserGetUserByIDV1Handler user.GetUserByIDV1Handler
-	// UserPutV1UserIDHandler sets the operation handler for the put v1 user ID operation
-	UserPutV1UserIDHandler user.PutV1UserIDHandler
+	// AuthorizationStartPlaidLinkV1Handler sets the operation handler for the start plaid link v1 operation
+	AuthorizationStartPlaidLinkV1Handler authorization.StartPlaidLinkV1Handler
+	// UserUpdateUserByIDV1Handler sets the operation handler for the update user by ID v1 operation
+	UserUpdateUserByIDV1Handler user.UpdateUserByIDV1Handler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -185,17 +211,27 @@ func (o *RollpayAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.IsAuthenticatedAuth == nil {
+		unregistered = append(unregistered, "AuthorizationAuth")
+	}
+
 	if o.HealthCheckV1Handler == nil {
 		unregistered = append(unregistered, "health.CheckV1Handler")
 	}
 	if o.UserCreateUserV1Handler == nil {
 		unregistered = append(unregistered, "user.CreateUserV1Handler")
 	}
+	if o.UserDeleteUserByIDV1Handler == nil {
+		unregistered = append(unregistered, "user.DeleteUserByIDV1Handler")
+	}
 	if o.UserGetUserByIDV1Handler == nil {
 		unregistered = append(unregistered, "user.GetUserByIDV1Handler")
 	}
-	if o.UserPutV1UserIDHandler == nil {
-		unregistered = append(unregistered, "user.PutV1UserIDHandler")
+	if o.AuthorizationStartPlaidLinkV1Handler == nil {
+		unregistered = append(unregistered, "authorization.StartPlaidLinkV1Handler")
+	}
+	if o.UserUpdateUserByIDV1Handler == nil {
+		unregistered = append(unregistered, "user.UpdateUserByIDV1Handler")
 	}
 
 	if len(unregistered) > 0 {
@@ -212,12 +248,23 @@ func (o *RollpayAPI) ServeErrorFor(operationID string) func(http.ResponseWriter,
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *RollpayAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+		case "isAuthenticated":
+			scheme := schemes[name]
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
+				return o.IsAuthenticatedAuth(token)
+			})
+
+		}
+	}
+	return result
 }
 
 // Authorizer returns the registered authorizer
 func (o *RollpayAPI) Authorizer() runtime.Authorizer {
-	return nil
+	return o.APIAuthorizer
 }
 
 // ConsumersFor gets the consumers for the specified media types.
@@ -295,14 +342,22 @@ func (o *RollpayAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/v1/user"] = user.NewCreateUserV1(o.context, o.UserCreateUserV1Handler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/v1/user/{id}"] = user.NewDeleteUserByIDV1(o.context, o.UserDeleteUserByIDV1Handler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/v1/user/{id}"] = user.NewGetUserByIDV1(o.context, o.UserGetUserByIDV1Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/v1/auth/link-token"] = authorization.NewStartPlaidLinkV1(o.context, o.AuthorizationStartPlaidLinkV1Handler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/v1/user/{id}"] = user.NewPutV1UserID(o.context, o.UserPutV1UserIDHandler)
+	o.handlers["PUT"]["/v1/user/{id}"] = user.NewUpdateUserByIDV1(o.context, o.UserUpdateUserByIDV1Handler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

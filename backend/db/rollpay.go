@@ -50,7 +50,7 @@ func SetupRollpay(lc fx.Lifecycle, config Settings, log *zap.Logger) (Rollpay, e
 
 	lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			log.Info("waiting for database to close...")
+			log.Info("closing down database connections...")
 			err := db.Close()
 			if err != nil {
 				return fmt.Errorf("database connection failed to close properly: %w", err)

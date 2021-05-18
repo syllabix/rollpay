@@ -11,15 +11,19 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("the requested user does not exist")
-	ErrInvalid  = errors.New("the request is invalid")
-	ErrFatal    = errors.New("an unexpected system error occurred")
+	ErrNotFound      = errors.New("the requested user does not exist")
+	ErrInvalid       = errors.New("the request is invalid")
+	ErrFatal         = errors.New("an unexpected system error occurred")
+	ErrEmailReserved = errors.New("the email used has already reserved")
 )
 
-func failure(reason error) (u model.User, err error) {
+func mapErr(reason error) (err error) {
 	switch {
 	case errors.Is(reason, user.ErrNotFound):
 		err = ErrNotFound
+
+	case errors.Is(reason, user.ErrEmailTaken):
+		err = ErrEmailReserved
 
 	case errors.Is(reason, id.ErrInvalid),
 		errors.Is(reason, password.ErrSizeExceeded):
@@ -28,5 +32,11 @@ func failure(reason error) (u model.User, err error) {
 	default:
 		err = ErrFatal
 	}
+
+	return err
+}
+
+func failure(reason error) (u model.User, err error) {
+	err = mapErr(reason)
 	return
 }

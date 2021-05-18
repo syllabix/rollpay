@@ -1,4 +1,4 @@
-package client
+package payment
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ type Client struct {
 	*plaid.Client
 }
 
-func New(settings config.PlaidSettings) (Client, error) {
+func NewClient(settings config.PlaidSettings) (Client, error) {
 	opts := optsFrom(settings)
 	client, err := plaid.NewClient(opts)
 	if err != nil {

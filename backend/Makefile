@@ -31,7 +31,7 @@ envfile:
 	cp .env.example .env
 
 .PHONY: api
-SWAGGER_GEN = swagger generate server -q --target ./api --name rollpay --spec ./api/swagger.yml --model-package model -a operation -s rest mixin --exclude-main
+SWAGGER_GEN = swagger generate server -q --target ./api --name rollpay --spec ./api/swagger.yml --model-package model -P model.Principal -a operation -s rest mixin --exclude-main
 ## Generate the API models and server
 api:
 	$(MAKE) _dexec CMD="$(SWAGGER_GEN)"

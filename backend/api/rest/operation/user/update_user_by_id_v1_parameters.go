@@ -17,16 +17,16 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PutV1UserIDMaxParseMemory sets the maximum size in bytes for
+// UpdateUserByIDV1MaxParseMemory sets the maximum size in bytes for
 // the multipart form parser for this operation.
 //
 // The default value is 32 MB.
 // The multipart parser stores up to this + 10MB.
-var PutV1UserIDMaxParseMemory int64 = 32 << 20
+var UpdateUserByIDV1MaxParseMemory int64 = 32 << 20
 
-// NewPutV1UserIDParams creates a new PutV1UserIDParams object
+// NewUpdateUserByIDV1Params creates a new UpdateUserByIDV1Params object
 // with the default values initialized.
-func NewPutV1UserIDParams() PutV1UserIDParams {
+func NewUpdateUserByIDV1Params() UpdateUserByIDV1Params {
 
 	var (
 		// initialize parameters with default values
@@ -35,18 +35,18 @@ func NewPutV1UserIDParams() PutV1UserIDParams {
 		userAgentDefault      = string("test-user")
 	)
 
-	return PutV1UserIDParams{
+	return UpdateUserByIDV1Params{
 		AcceptLanguage: &acceptLanguageDefault,
 
 		UserAgent: &userAgentDefault,
 	}
 }
 
-// PutV1UserIDParams contains all the bound params for the put v1 user ID operation
+// UpdateUserByIDV1Params contains all the bound params for the update user by ID v1 operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters PutV1UserID
-type PutV1UserIDParams struct {
+// swagger:parameters UpdateUserByIDV1
+type UpdateUserByIDV1Params struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -87,13 +87,13 @@ type PutV1UserIDParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewPutV1UserIDParams() beforehand.
-func (o *PutV1UserIDParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateUserByIDV1Params() beforehand.
+func (o *UpdateUserByIDV1Params) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
-	if err := r.ParseMultipartForm(PutV1UserIDMaxParseMemory); err != nil {
+	if err := r.ParseMultipartForm(UpdateUserByIDV1MaxParseMemory); err != nil {
 		if err != http.ErrNotMultipart {
 			return errors.New(400, "%v", err)
 		} else if err := r.ParseForm(); err != nil {
@@ -147,7 +147,7 @@ func (o *PutV1UserIDParams) BindRequest(r *http.Request, route *middleware.Match
 }
 
 // bindAcceptLanguage binds and validates parameter AcceptLanguage from header.
-func (o *PutV1UserIDParams) bindAcceptLanguage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindAcceptLanguage(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -156,7 +156,7 @@ func (o *PutV1UserIDParams) bindAcceptLanguage(rawData []string, hasKey bool, fo
 	// Required: false
 
 	if raw == "" { // empty values pass all other validations
-		// Default values have been previously initialized by NewPutV1UserIDParams()
+		// Default values have been previously initialized by NewUpdateUserByIDV1Params()
 		return nil
 	}
 	o.AcceptLanguage = &raw
@@ -165,7 +165,7 @@ func (o *PutV1UserIDParams) bindAcceptLanguage(rawData []string, hasKey bool, fo
 }
 
 // bindUserAgent binds and validates parameter UserAgent from header.
-func (o *PutV1UserIDParams) bindUserAgent(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindUserAgent(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -174,7 +174,7 @@ func (o *PutV1UserIDParams) bindUserAgent(rawData []string, hasKey bool, formats
 	// Required: false
 
 	if raw == "" { // empty values pass all other validations
-		// Default values have been previously initialized by NewPutV1UserIDParams()
+		// Default values have been previously initialized by NewUpdateUserByIDV1Params()
 		return nil
 	}
 	o.UserAgent = &raw
@@ -185,12 +185,12 @@ func (o *PutV1UserIDParams) bindUserAgent(rawData []string, hasKey bool, formats
 // bindAvatar binds file parameter Avatar.
 //
 // The only supported validations on files are MinLength and MaxLength
-func (o *PutV1UserIDParams) bindAvatar(file multipart.File, header *multipart.FileHeader) error {
+func (o *UpdateUserByIDV1Params) bindAvatar(file multipart.File, header *multipart.FileHeader) error {
 	return nil
 }
 
 // bindEmail binds and validates parameter Email from formData.
-func (o *PutV1UserIDParams) bindEmail(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindEmail(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -217,7 +217,7 @@ func (o *PutV1UserIDParams) bindEmail(rawData []string, hasKey bool, formats str
 }
 
 // validateEmail carries on validations for parameter Email
-func (o *PutV1UserIDParams) validateEmail(formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) validateEmail(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("email", "formData", "email", o.Email.String(), formats); err != nil {
 		return err
@@ -226,7 +226,7 @@ func (o *PutV1UserIDParams) validateEmail(formats strfmt.Registry) error {
 }
 
 // bindID binds and validates parameter ID from path.
-func (o *PutV1UserIDParams) bindID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -240,7 +240,7 @@ func (o *PutV1UserIDParams) bindID(rawData []string, hasKey bool, formats strfmt
 }
 
 // bindPassword binds and validates parameter Password from formData.
-func (o *PutV1UserIDParams) bindPassword(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindPassword(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -267,7 +267,7 @@ func (o *PutV1UserIDParams) bindPassword(rawData []string, hasKey bool, formats 
 }
 
 // validatePassword carries on validations for parameter Password
-func (o *PutV1UserIDParams) validatePassword(formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) validatePassword(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("password", "formData", "password", o.Password.String(), formats); err != nil {
 		return err
@@ -276,7 +276,7 @@ func (o *PutV1UserIDParams) validatePassword(formats strfmt.Registry) error {
 }
 
 // bindUsername binds and validates parameter Username from formData.
-func (o *PutV1UserIDParams) bindUsername(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserByIDV1Params) bindUsername(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

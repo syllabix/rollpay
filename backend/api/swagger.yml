@@ -14,9 +14,29 @@ schemes:
   - http
   - https
 
-security: []
+securityDefinitions:
+  isAuthenticated:
+    type: apiKey
+    in: header
+    name: Authorization
+
+security:
+  - isAuthenticated: []
 
 definitions:
+  ####################
+  # SECURITY PRINCIPAL
+  ####################
+  Principal:
+    type: object
+    properties:
+      sessionId:
+        type: integer
+        readOnly: true
+      userId:
+        type: integer
+        readOnly: true
+
 
   StandardResponse:
     type: object
@@ -110,6 +130,15 @@ definitions:
         type: string
         format: date-time
 
+  ############################################
+  # Tokens
+  ############################################
+  LinkToken:
+    type: object
+    properties:
+      token:
+        type: string
+        readOnly: true
 
 # Global Parameters
 parameters:
@@ -198,6 +227,7 @@ paths:
         - Health
       summary: application health check
       operationId: CheckV1
+      security: []
       responses:
         200:
           $ref: "#/responses/OkResponse"
@@ -205,7 +235,7 @@ paths:
           $ref: "#/responses/500ErrorResponse"
 
   ##############################################
-  # DIAGNOSTIC ENDPOINTS
+  # USER ENDPOINTS
   ##############################################
   /v1/user:
     parameters:
@@ -217,6 +247,7 @@ paths:
         - User
       operationId: CreateUserV1
       summary: create a new user
+      security: []
       consumes:
          - multipart/form-data
       parameters:
@@ -283,6 +314,30 @@ paths:
       tags:
         - User
       summary: update a user by id
+      operationId: UpdateUserByIDV1
+      consumes:
+         - multipart/form-data
+      parameters:
+         - in: formData
+           name: avatar
+           type: file
+           description: the users avatar
+           required: false
+         - in: formData
+           name: email
+           type: string
+           format: email
+           required: false
+         - in: formData
+           name: password
+           type: string
+           format: password
+           required: false
+         - in: formData
+           name: username
+           type: string
+           required: false
+
       responses:
         200:
           description: a successfully updated user
@@ -292,5 +347,52 @@ paths:
           $ref: "#/responses/400ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
+        409:
+          $ref: "#/responses/409ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"
+
+    delete:
+      tags:
+        - User
+      summary: delete a user by id
+      operationId: DeleteUserByIDV1
+      responses:
+        200:
+          $ref: "#/responses/OkResponse"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  ##############################################
+  # USER ENDPOINTS
+  ##############################################
+  /v1/auth/link-token:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+
+    post:
+      tags:
+        - Authorization
+      summary: start an authorzation flow for Plaid link
+      operationId: StartPlaidLinkV1
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+      responses:
+        201:
+          description: a newly issued link token
+          schema:
+            $ref: "#/definitions/LinkToken"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+

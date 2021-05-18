@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/syllabix/rollpay/backend/api"
+	"github.com/syllabix/rollpay/backend/common/client"
 	"github.com/syllabix/rollpay/backend/common/observabilty"
 	"github.com/syllabix/rollpay/backend/common/profiler"
 	"github.com/syllabix/rollpay/backend/config"
@@ -48,6 +49,7 @@ func NewApplication(options ...Option) Application {
 		payment.Module,
 		service.Module,
 		datastore.Module,
+		client.Module,
 
 		// start the engines
 		fx.Invoke(start),

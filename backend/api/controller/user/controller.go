@@ -23,9 +23,15 @@ func (ctrl *Controller) Register(api *operation.RollpayAPI) {
 
 	api.UserCreateUserV1Handler = user.
 		CreateUserV1HandlerFunc(ctrl.CreateUser)
+
+	api.UserUpdateUserByIDV1Handler = user.
+		UpdateUserByIDV1HandlerFunc(ctrl.UpdateUser)
+
+	api.UserDeleteUserByIDV1Handler = user.
+		DeleteUserByIDV1HandlerFunc(ctrl.DeleteUser)
 }
 
-func (ctrl *Controller) GetUserByID(params user.GetUserByIDV1Params) middleware.Responder {
+func (ctrl *Controller) GetUserByID(params user.GetUserByIDV1Params, session *model.Principal) middleware.Responder {
 	result, err := ctrl.srv.Get(params.HTTPRequest.Context(), params.ID)
 	switch {
 	case err == nil:
@@ -59,10 +65,66 @@ func (ctrl *Controller) CreateUser(params user.CreateUserV1Params) middleware.Re
 		return user.NewCreateUserV1Created().
 			WithPayload(&newUser)
 
+	case errors.Is(err, u.ErrEmailReserved):
+		return user.NewCreateUserV1Conflict().
+			WithPayload(&model.StandardError{
+				Message: "sorry, but it looks like that email is already in use.",
+			})
+
 	default:
 		return user.NewCreateUserV1InternalServerError().
 			WithPayload(&model.StandardError{
 				Message: "oops, something didn't work out as expected on our end. give our systems a minute or two and try again",
+			})
+	}
+}
+
+func (ctrl *Controller) UpdateUser(params user.UpdateUserByIDV1Params, session *model.Principal) middleware.Responder {
+	newUser, err := ctrl.srv.Update(params)
+	switch {
+	case err == nil:
+		return user.NewUpdateUserByIDV1OK().
+			WithPayload(&newUser)
+
+	case errors.Is(err, u.ErrEmailReserved):
+		return user.NewUpdateUserByIDV1Conflict().
+			WithPayload(&model.StandardError{
+				Message: "the email you are trying to update is already in use",
+			})
+
+	case errors.Is(err, u.ErrNotFound):
+		return user.NewUpdateUserByIDV1NotFound().
+			WithPayload(&model.StandardError{
+				Message: "the user info you are trying to update is not in our system. try creating an account first",
+			})
+
+	default:
+		return user.NewUpdateUserByIDV1InternalServerError().
+			WithPayload(&model.StandardError{
+				Message: "oops, that update did not go as smoothly as we would have liked. check up on next weekend's plans and try again after",
+			})
+	}
+}
+
+func (ctrl *Controller) DeleteUser(params user.DeleteUserByIDV1Params, session *model.Principal) middleware.Responder {
+	err := ctrl.srv.Delete(params.HTTPRequest.Context(), params.ID)
+	switch {
+	case err == nil:
+		return user.NewDeleteUserByIDV1OK().
+			WithPayload(&model.StandardResponse{
+				Message: "the user account was deleted",
+			})
+
+	case errors.Is(err, u.ErrNotFound):
+		return user.NewDeleteUserByIDV1NotFound().
+			WithPayload(&model.StandardError{
+				Message: "the user info you are trying to delete is not in our system",
+			})
+
+	default:
+		return user.NewCreateUserV1InternalServerError().
+			WithPayload(&model.StandardError{
+				Message: "oops, pardon our dust, but we were unable to close this user account",
 			})
 	}
 }

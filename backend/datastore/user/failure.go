@@ -24,7 +24,7 @@ func failure(reason error) (user model.User, err error) {
 	case errors.As(reason, &sqlErr):
 		if sqlErr.Code.Name() == "unique_violation" {
 			err = ErrEmailTaken
-			break
+			return
 		}
 		// if it is not an expected error, then use defaul case
 		fallthrough
