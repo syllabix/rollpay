@@ -30,10 +30,15 @@ type ServerSettings struct {
 	WriteTimeout time.Duration
 }
 
+type SecuritySettings struct {
+	PasswordHashCost  int
+	PasswordMaxLength int
+}
+
 // Load all application settings, from either flags or a .env file
 // See the .env.example for available environment variables, or run the
 // the application with -h to see what flags are available
-func Load() (ServerSettings, PlaidSettings, db.Settings) {
+func Load() (ServerSettings, PlaidSettings, db.Settings, SecuritySettings) {
 	err := godotenv.Load()
 	if err != nil {
 		panic(fmt.Sprintf("unable to load .env file: reason %v", err))
@@ -65,6 +70,9 @@ func Load() (ServerSettings, PlaidSettings, db.Settings) {
 			MaxConnections:     getEnvAsInt("MAX_CONNS", 5),
 			MaxIdleConnections: getEnvAsInt("MAX_IDLE_CONNS", 5),
 			MaxConnLifetime:    getEnvAsDur("MAX_CONN_LIFETIME", time.Hour),
+		}, SecuritySettings{
+			PasswordHashCost:  getEnvAsInt("PASSWORD_HASH_COST", 11),
+			PasswordMaxLength: getEnvAsInt("PASSWORD_MAX_LENGTH", 4096),
 		}
 }
 
