@@ -1,4 +1,4 @@
-package user
+package organization
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/syllabix/rollpay/backend/datastore/model"
 	"github.com/syllabix/rollpay/backend/db"
+
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -14,35 +15,35 @@ type Store struct {
 	db db.Rollpay
 }
 
-func (s Store) GetByID(ctx context.Context, id int64) (model.User, error) {
-	user, err := model.Users(
-		model.UserWhere.ID.EQ(id),
-		qm.Load(model.UserRels.UserAccounts,
-			qm.Load(model.UserAccountRels.LinkedAccount)),
+func (s Store) GetByID(ctx context.Context, id int64) (model.Organization, error) {
+	org, err := model.Organizations(
+		model.OrganizationWhere.ID.EQ(id),
+		qm.Load(model.OrganizationRels.OrganizationAccounts,
+			qm.Load(model.OrganizationAccountRels.LinkedAccount)),
 	).One(ctx, s.db)
 	if err != nil {
 		return failure(err)
 	}
 
-	return *user, nil
+	return *org, nil
 }
 
-func (s Store) Create(ctx context.Context, user model.User) (model.User, error) {
-	err := user.Insert(ctx, s.db, boil.Infer())
+func (s Store) Create(ctx context.Context, org model.Organization) (model.Organization, error) {
+	err := org.Insert(ctx, s.db, boil.Infer())
 	if err != nil {
 		return failure(err)
 	}
 
-	return user, nil
+	return org, nil
 }
 
-func (s Store) Update(ctx context.Context, user model.User) (model.User, error) {
+func (s Store) Update(ctx context.Context, org model.Organization) (model.Organization, error) {
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return failure(err)
 	}
 
-	effected, err := user.Update(ctx, tx, updatable(user))
+	effected, err := org.Update(ctx, tx, updatable(org))
 	if err != nil {
 		return rollback(tx, err)
 	}
@@ -51,7 +52,7 @@ func (s Store) Update(ctx context.Context, user model.User) (model.User, error) 
 		return rollback(tx, sql.ErrNoRows)
 	}
 
-	err = user.Reload(ctx, tx)
+	err = org.Reload(ctx, tx)
 	if err != nil {
 		return rollback(tx, err)
 	}
@@ -61,12 +62,12 @@ func (s Store) Update(ctx context.Context, user model.User) (model.User, error) 
 		return rollback(tx, err)
 	}
 
-	return user, nil
+	return org, nil
 }
 
 func (s Store) Delete(ctx context.Context, id int64) error {
-	effected, err := model.Users(
-		model.UserWhere.ID.EQ(id),
+	effected, err := model.Organizations(
+		model.OrganizationWhere.ID.EQ(id),
 	).DeleteAll(ctx, s.db, false)
 
 	if err != nil {

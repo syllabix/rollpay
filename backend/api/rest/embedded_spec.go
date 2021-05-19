@@ -98,6 +98,165 @@ func init() {
         }
       }
     },
+    "/v1/organization": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Organization"
+        ],
+        "summary": "create a new Organization",
+        "operationId": "CreateOrganizationV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the organization logo",
+            "name": "logo",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "name",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly created organization",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "409": {
+            "$ref": "#/responses/409ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        }
+      ]
+    },
+    "/v1/organization/{id}": {
+      "get": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "get an organization by id",
+        "operationId": "GetOrganizationByIDV1",
+        "responses": {
+          "200": {
+            "description": "a",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Organization"
+        ],
+        "summary": "update an organization by id",
+        "operationId": "UpdateOrganizationByIDV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the organization logo",
+            "name": "logo",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "name",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a successfully updated organization",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "409": {
+            "$ref": "#/responses/409ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "delete an organization by id",
+        "operationId": "DeleteOrganizationByIDV1",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OkResponse"
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/404ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        },
+        {
+          "type": "string",
+          "description": "the id of the org",
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/v1/user": {
       "post": {
         "security": [],
@@ -330,6 +489,63 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkedAccount"
+          }
+        },
+        "avatar": {
+          "type": "string",
+          "format": "byte"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OrganizationMember": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "joined": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "manager",
+            "employee"
+          ]
+        },
+        "username": {
+          "type": "string"
         }
       }
     },
@@ -622,6 +838,221 @@ func init() {
         }
       }
     },
+    "/v1/organization": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Organization"
+        ],
+        "summary": "create a new Organization",
+        "operationId": "CreateOrganizationV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the organization logo",
+            "name": "logo",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "name",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly created organization",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "409": {
+            "description": "A conflict with an existing resource or process occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        }
+      ]
+    },
+    "/v1/organization/{id}": {
+      "get": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "get an organization by id",
+        "operationId": "GetOrganizationByIDV1",
+        "responses": {
+          "200": {
+            "description": "a",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "put": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Organization"
+        ],
+        "summary": "update an organization by id",
+        "operationId": "UpdateOrganizationByIDV1",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "the organization logo",
+            "name": "logo",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "name",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a successfully updated organization",
+            "schema": {
+              "$ref": "#/definitions/Organization"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "409": {
+            "description": "A conflict with an existing resource or process occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "delete an organization by id",
+        "operationId": "DeleteOrganizationByIDV1",
+        "responses": {
+          "200": {
+            "description": "operation was successful",
+            "schema": {
+              "$ref": "#/definitions/StandardResponse"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "404": {
+            "description": "The resource requested does not exist.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "description": "the id of the org",
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/v1/user": {
       "post": {
         "security": [],
@@ -910,6 +1341,63 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkedAccount"
+          }
+        },
+        "avatar": {
+          "type": "string",
+          "format": "byte"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OrganizationMember": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "joined": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "manager",
+            "employee"
+          ]
+        },
+        "username": {
+          "type": "string"
         }
       }
     },

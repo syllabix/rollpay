@@ -22,8 +22,22 @@ func asModel(u db.User) api.User {
 	}
 }
 
-func mapAccounts(u db.User) []*api.LinkedAccount {
-	return []*api.LinkedAccount{}
+func mapAccounts(usr db.User) []*api.LinkedAccount {
+	if usr.R == nil {
+		return []*api.LinkedAccount{}
+	}
+
+	accounts := make([]*api.LinkedAccount, len(usr.R.UserAccounts))
+	for i, account := range usr.R.UserAccounts {
+		link := account.R.LinkedAccount
+		accounts[i] = &api.LinkedAccount{
+			ID:        id.AsPublic(link.ID),
+			Alias:     link.Alias,
+			CreatedAt: strfmt.DateTime(link.CreatedAt),
+			UpdatedAt: strfmt.DateTime(link.UpdatedAt),
+		}
+	}
+	return accounts
 }
 
 func asNewUser(params user.CreateUserV1Params, password []byte) (db.User, error) {

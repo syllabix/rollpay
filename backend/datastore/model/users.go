@@ -59,15 +59,6 @@ var UserColumns = struct {
 
 // Generated where
 
-type whereHelper__byte struct{ field string }
-
-func (w whereHelper__byte) EQ(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelper__byte) NEQ(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelper__byte) LT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelper__byte) LTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelper__byte) GT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelper__byte) GTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-
 var UserWhere = struct {
 	ID        whereHelperint64
 	Email     whereHelperstring
@@ -90,14 +81,17 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	LinkedAccounts string
+	OrganizationMembers string
+	UserAccounts        string
 }{
-	LinkedAccounts: "LinkedAccounts",
+	OrganizationMembers: "OrganizationMembers",
+	UserAccounts:        "UserAccounts",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	LinkedAccounts LinkedAccountSlice `db:"LinkedAccounts" boil:"LinkedAccounts" json:"LinkedAccounts" toml:"LinkedAccounts" yaml:"LinkedAccounts"`
+	OrganizationMembers OrganizationMemberSlice `db:"OrganizationMembers" boil:"OrganizationMembers" json:"OrganizationMembers" toml:"OrganizationMembers" yaml:"OrganizationMembers"`
+	UserAccounts        UserAccountSlice        `db:"UserAccounts" boil:"UserAccounts" json:"UserAccounts" toml:"UserAccounts" yaml:"UserAccounts"`
 }
 
 // NewStruct creates a new relationship struct
@@ -206,31 +200,52 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// LinkedAccounts retrieves all the linked_account's LinkedAccounts with an executor.
-func (o *User) LinkedAccounts(mods ...qm.QueryMod) linkedAccountQuery {
+// OrganizationMembers retrieves all the organization_member's OrganizationMembers with an executor.
+func (o *User) OrganizationMembers(mods ...qm.QueryMod) organizationMemberQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"linked_accounts\".\"user_id\"=?", o.ID),
-		qmhelper.WhereIsNull("\"linked_accounts\".\"deleted_at\""),
+		qm.Where("\"organization_members\".\"user_id\"=?", o.ID),
+		qmhelper.WhereIsNull("\"organization_members\".\"deleted_at\""),
 	)
 
-	query := LinkedAccounts(queryMods...)
-	queries.SetFrom(query.Query, "\"linked_accounts\"")
+	query := OrganizationMembers(queryMods...)
+	queries.SetFrom(query.Query, "\"organization_members\"")
 
 	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"linked_accounts\".*"})
+		queries.SetSelect(query.Query, []string{"\"organization_members\".*"})
 	}
 
 	return query
 }
 
-// LoadLinkedAccounts allows an eager lookup of values, cached into the
+// UserAccounts retrieves all the user_account's UserAccounts with an executor.
+func (o *User) UserAccounts(mods ...qm.QueryMod) userAccountQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"user_accounts\".\"user_id\"=?", o.ID),
+	)
+
+	query := UserAccounts(queryMods...)
+	queries.SetFrom(query.Query, "\"user_accounts\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"user_accounts\".*"})
+	}
+
+	return query
+}
+
+// LoadOrganizationMembers allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadLinkedAccounts(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadOrganizationMembers(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -268,9 +283,9 @@ func (userL) LoadLinkedAccounts(ctx context.Context, e boil.ContextExecutor, sin
 	}
 
 	query := NewQuery(
-		qm.From(`linked_accounts`),
-		qm.WhereIn(`linked_accounts.user_id in ?`, args...),
-		qmhelper.WhereIsNull(`linked_accounts.deleted_at`),
+		qm.From(`organization_members`),
+		qm.WhereIn(`organization_members.user_id in ?`, args...),
+		qmhelper.WhereIsNull(`organization_members.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -278,26 +293,26 @@ func (userL) LoadLinkedAccounts(ctx context.Context, e boil.ContextExecutor, sin
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load linked_accounts")
+		return errors.Wrap(err, "failed to eager load organization_members")
 	}
 
-	var resultSlice []*LinkedAccount
+	var resultSlice []*OrganizationMember
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice linked_accounts")
+		return errors.Wrap(err, "failed to bind eager loaded slice organization_members")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on linked_accounts")
+		return errors.Wrap(err, "failed to close results in eager load on organization_members")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for linked_accounts")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for organization_members")
 	}
 
 	if singular {
-		object.R.LinkedAccounts = resultSlice
+		object.R.OrganizationMembers = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &linkedAccountR{}
+				foreign.R = &organizationMemberR{}
 			}
 			foreign.R.User = object
 		}
@@ -307,9 +322,9 @@ func (userL) LoadLinkedAccounts(ctx context.Context, e boil.ContextExecutor, sin
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
 			if local.ID == foreign.UserID {
-				local.R.LinkedAccounts = append(local.R.LinkedAccounts, foreign)
+				local.R.OrganizationMembers = append(local.R.OrganizationMembers, foreign)
 				if foreign.R == nil {
-					foreign.R = &linkedAccountR{}
+					foreign.R = &organizationMemberR{}
 				}
 				foreign.R.User = local
 				break
@@ -320,11 +335,102 @@ func (userL) LoadLinkedAccounts(ctx context.Context, e boil.ContextExecutor, sin
 	return nil
 }
 
-// AddLinkedAccounts adds the given related objects to the existing relationships
+// LoadUserAccounts allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadUserAccounts(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`user_accounts`),
+		qm.WhereIn(`user_accounts.user_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load user_accounts")
+	}
+
+	var resultSlice []*UserAccount
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice user_accounts")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on user_accounts")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for user_accounts")
+	}
+
+	if singular {
+		object.R.UserAccounts = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &userAccountR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.UserAccounts = append(local.R.UserAccounts, foreign)
+				if foreign.R == nil {
+					foreign.R = &userAccountR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// AddOrganizationMembers adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.LinkedAccounts.
+// Appends related to o.R.OrganizationMembers.
 // Sets related.R.User appropriately.
-func (o *User) AddLinkedAccounts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*LinkedAccount) error {
+func (o *User) AddOrganizationMembers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*OrganizationMember) error {
 	var err error
 	for _, rel := range related {
 		if insert {
@@ -334,11 +440,11 @@ func (o *User) AddLinkedAccounts(ctx context.Context, exec boil.ContextExecutor,
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
-				"UPDATE \"linked_accounts\" SET %s WHERE %s",
+				"UPDATE \"organization_members\" SET %s WHERE %s",
 				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, linkedAccountPrimaryKeyColumns),
+				strmangle.WhereClause("\"", "\"", 2, organizationMemberPrimaryKeyColumns),
 			)
-			values := []interface{}{o.ID, rel.ID}
+			values := []interface{}{o.ID, rel.UserID, rel.OrganizationID}
 
 			if boil.IsDebug(ctx) {
 				writer := boil.DebugWriterFrom(ctx)
@@ -355,15 +461,68 @@ func (o *User) AddLinkedAccounts(ctx context.Context, exec boil.ContextExecutor,
 
 	if o.R == nil {
 		o.R = &userR{
-			LinkedAccounts: related,
+			OrganizationMembers: related,
 		}
 	} else {
-		o.R.LinkedAccounts = append(o.R.LinkedAccounts, related...)
+		o.R.OrganizationMembers = append(o.R.OrganizationMembers, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &linkedAccountR{
+			rel.R = &organizationMemberR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddUserAccounts adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.UserAccounts.
+// Sets related.R.User appropriately.
+func (o *User) AddUserAccounts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*UserAccount) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"user_accounts\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, userAccountPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.LinkedAccountID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			UserAccounts: related,
+		}
+	} else {
+		o.R.UserAccounts = append(o.R.UserAccounts, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &userAccountR{
 				User: o,
 			}
 		} else {

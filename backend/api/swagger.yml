@@ -85,7 +85,7 @@ definitions:
           $ref: "#/definitions/FieldError"
 
   ############################################
-  # User
+  # Account Models
   ############################################
   LinkedAccount:
     type: object
@@ -102,6 +102,9 @@ definitions:
         type: string
         format: date-time
 
+  ############################################
+  # User
+  ############################################
   User:
     type: object
     properties:
@@ -119,6 +122,51 @@ definitions:
         format: byte
       username:
         type: string
+      accounts:
+        type: array
+        items:
+          $ref: "#/definitions/LinkedAccount"
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+  ############################################
+  # Organization Models
+  ############################################
+  OrganizationMember:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      email:
+        type: string
+        format: email
+      username:
+        type: string
+      role:
+        type: string
+        enum:
+          - manager
+          - employee
+      joined:
+        type: string
+        format: date-time
+
+  Organization:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      name:
+        type: string
+      avatar:
+        type: string
+        format: byte
       accounts:
         type: array
         items:
@@ -372,7 +420,119 @@ paths:
           $ref: "#/responses/500ErrorResponse"
 
   ##############################################
-  # USER ENDPOINTS
+  # ORGANIZATION ENDPOINTS
+  ##############################################
+  /v1/organization:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+
+    post:
+      tags:
+        - Organization
+      operationId: CreateOrganizationV1
+      summary: create a new Organization
+      consumes:
+         - multipart/form-data
+      parameters:
+         - in: formData
+           name: logo
+           type: file
+           description: the organization logo
+           required: true
+         - in: formData
+           name: name
+           type: string
+           required: true
+
+      responses:
+        201:
+          description: a newly created organization
+          schema:
+            $ref: "#/definitions/Organization"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        409:
+          $ref: "#/responses/409ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  /v1/organization/{id}:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: the id of the org
+
+    get:
+      tags:
+        - Organization
+      summary: get an organization by id
+      operationId: GetOrganizationByIDV1
+      responses:
+        200:
+          description: a
+          schema:
+            $ref: "#/definitions/Organization"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+    put:
+      tags:
+        - Organization
+      summary: update an organization by id
+      operationId: UpdateOrganizationByIDV1
+      consumes:
+         - multipart/form-data
+      parameters:
+         - in: formData
+           name: logo
+           type: file
+           description: the organization logo
+           required: true
+         - in: formData
+           name: name
+           type: string
+           required: true
+
+      responses:
+        200:
+          description: a successfully updated organization
+          schema:
+            $ref: "#/definitions/Organization"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        409:
+          $ref: "#/responses/409ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+    delete:
+      tags:
+        - Organization
+      summary: delete an organization by id
+      operationId: DeleteOrganizationByIDV1
+      responses:
+        200:
+          $ref: "#/responses/OkResponse"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  ##############################################
+  # AUTH TOKEN ENDPOINTS
   ##############################################
   /v1/auth/link-token:
     parameters:

@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS linked_accounts (
     alias TEXT NOT NULL,
     item_id text NOT NULL,
     access_token text NOT NULL,
-    user_id bigint NOT NULL REFERENCES users (id),
     created_at timestamp with time zone NOT NULL DEFAULT ('now'::text)::timestamp with time zone,
     updated_at timestamp with time zone NOT NULL DEFAULT ('now'::text)::timestamp with time zone,
     deleted_at timestamp with time zone NULL
@@ -14,7 +13,28 @@ CREATE TABLE IF NOT EXISTS linked_accounts (
 CREATE INDEX linked_accounts_created_at_idx ON linked_accounts (created_at DESC);
 CREATE INDEX linked_accounts_deleted_at_idx ON linked_accounts (deleted_at DESC);
 
+---
+CREATE TABLE IF NOT EXISTS organization_accounts (
+    linked_account_id bigint NOT NULL REFERENCES linked_accounts (id) PRIMARY KEY,
+    organization_id bigint NOT NULL REFERENCES organizations (id)
+);
+
+CREATE INDEX organization_accounts_org_id_idx ON organization_accounts (organization_id);
+---
+CREATE TABLE IF NOT EXISTS user_accounts (
+    linked_account_id bigint NOT NULL REFERENCES linked_accounts (id) PRIMARY KEY,
+    user_id bigint NOT NULL REFERENCES users (id)
+);
+
+CREATE INDEX user_accounts_user_id_idx ON user_accounts (user_id);
+
 -- +migrate Down
+DROP INDEX IF EXISTS organization_accounts_org_id_idx;
+DROP TABLE IF EXISTS organization_accounts;
+
+DROP INDEX IF EXISTS user_accounts_user_id_idx;
+DROP TABLE IF EXISTS user_accounts;
+
 DROP INDEX IF EXISTS linked_accounts_created_at_idx;
 DROP INDEX IF EXISTS linked_accounts_deleted_at_idx;
 DROP TABLE IF EXISTS linked_accounts;

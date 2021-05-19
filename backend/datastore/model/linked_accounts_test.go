@@ -454,58 +454,109 @@ func testLinkedAccountsInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testLinkedAccountToOneUserUsingUser(t *testing.T) {
+func testLinkedAccountOneToOneOrganizationAccountUsingOrganizationAccount(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
+	var foreign OrganizationAccount
 	var local LinkedAccount
-	var foreign User
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, linkedAccountDBTypes, false, linkedAccountColumnsWithDefault...); err != nil {
+	if err := randomize.Struct(seed, &foreign, organizationAccountDBTypes, true, organizationAccountColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize OrganizationAccount struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &local, linkedAccountDBTypes, true, linkedAccountColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize LinkedAccount struct: %s", err)
 	}
-	if err := randomize.Struct(seed, &foreign, userDBTypes, false, userColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize User struct: %s", err)
-	}
 
-	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	local.UserID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	check, err := local.User().One(ctx, tx)
+	foreign.LinkedAccountID = local.ID
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.OrganizationAccount().One(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if check.ID != foreign.ID {
-		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	if check.LinkedAccountID != foreign.LinkedAccountID {
+		t.Errorf("want: %v, got %v", foreign.LinkedAccountID, check.LinkedAccountID)
 	}
 
 	slice := LinkedAccountSlice{&local}
-	if err = local.L.LoadUser(ctx, tx, false, (*[]*LinkedAccount)(&slice), nil); err != nil {
+	if err = local.L.LoadOrganizationAccount(ctx, tx, false, (*[]*LinkedAccount)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.User == nil {
+	if local.R.OrganizationAccount == nil {
 		t.Error("struct should have been eager loaded")
 	}
 
-	local.R.User = nil
-	if err = local.L.LoadUser(ctx, tx, true, &local, nil); err != nil {
+	local.R.OrganizationAccount = nil
+	if err = local.L.LoadOrganizationAccount(ctx, tx, true, &local, nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.User == nil {
+	if local.R.OrganizationAccount == nil {
 		t.Error("struct should have been eager loaded")
 	}
 }
 
-func testLinkedAccountToOneSetOpUserUsingUser(t *testing.T) {
+func testLinkedAccountOneToOneUserAccountUsingUserAccount(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var foreign UserAccount
+	var local LinkedAccount
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &foreign, userAccountDBTypes, true, userAccountColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize UserAccount struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &local, linkedAccountDBTypes, true, linkedAccountColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize LinkedAccount struct: %s", err)
+	}
+
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreign.LinkedAccountID = local.ID
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.UserAccount().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if check.LinkedAccountID != foreign.LinkedAccountID {
+		t.Errorf("want: %v, got %v", foreign.LinkedAccountID, check.LinkedAccountID)
+	}
+
+	slice := LinkedAccountSlice{&local}
+	if err = local.L.LoadUserAccount(ctx, tx, false, (*[]*LinkedAccount)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.UserAccount == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.UserAccount = nil
+	if err = local.L.LoadUserAccount(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.UserAccount == nil {
+		t.Error("struct should have been eager loaded")
+	}
+}
+
+func testLinkedAccountOneToOneSetOpOrganizationAccountUsingOrganizationAccount(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -513,16 +564,16 @@ func testLinkedAccountToOneSetOpUserUsingUser(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a LinkedAccount
-	var b, c User
+	var b, c OrganizationAccount
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, linkedAccountDBTypes, false, strmangle.SetComplement(linkedAccountPrimaryKeyColumns, linkedAccountColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &b, organizationAccountDBTypes, false, strmangle.SetComplement(organizationAccountPrimaryKeyColumns, organizationAccountColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &c, organizationAccountDBTypes, false, strmangle.SetComplement(organizationAccountPrimaryKeyColumns, organizationAccountColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
 
@@ -533,32 +584,95 @@ func testLinkedAccountToOneSetOpUserUsingUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for i, x := range []*User{&b, &c} {
-		err = a.SetUser(ctx, tx, i != 0, x)
+	for i, x := range []*OrganizationAccount{&b, &c} {
+		err = a.SetOrganizationAccount(ctx, tx, i != 0, x)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if a.R.User != x {
+		if a.R.OrganizationAccount != x {
 			t.Error("relationship struct not set to correct value")
 		}
-
-		if x.R.LinkedAccounts[0] != &a {
+		if x.R.LinkedAccount != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if a.UserID != x.ID {
-			t.Error("foreign key was wrong value", a.UserID)
+
+		if a.ID != x.LinkedAccountID {
+			t.Error("foreign key was wrong value", a.ID)
 		}
 
-		zero := reflect.Zero(reflect.TypeOf(a.UserID))
-		reflect.Indirect(reflect.ValueOf(&a.UserID)).Set(zero)
-
-		if err = a.Reload(ctx, tx); err != nil {
-			t.Fatal("failed to reload", err)
+		if exists, err := OrganizationAccountExists(ctx, tx, x.LinkedAccountID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'x' to exist")
 		}
 
-		if a.UserID != x.ID {
-			t.Error("foreign key was wrong value", a.UserID, x.ID)
+		if a.ID != x.LinkedAccountID {
+			t.Error("foreign key was wrong value", a.ID, x.LinkedAccountID)
+		}
+
+		if _, err = x.Delete(ctx, tx); err != nil {
+			t.Fatal("failed to delete x", err)
+		}
+	}
+}
+func testLinkedAccountOneToOneSetOpUserAccountUsingUserAccount(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a LinkedAccount
+	var b, c UserAccount
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, linkedAccountDBTypes, false, strmangle.SetComplement(linkedAccountPrimaryKeyColumns, linkedAccountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, userAccountDBTypes, false, strmangle.SetComplement(userAccountPrimaryKeyColumns, userAccountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, userAccountDBTypes, false, strmangle.SetComplement(userAccountPrimaryKeyColumns, userAccountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*UserAccount{&b, &c} {
+		err = a.SetUserAccount(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.UserAccount != x {
+			t.Error("relationship struct not set to correct value")
+		}
+		if x.R.LinkedAccount != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+
+		if a.ID != x.LinkedAccountID {
+			t.Error("foreign key was wrong value", a.ID)
+		}
+
+		if exists, err := UserAccountExists(ctx, tx, x.LinkedAccountID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'x' to exist")
+		}
+
+		if a.ID != x.LinkedAccountID {
+			t.Error("foreign key was wrong value", a.ID, x.LinkedAccountID)
+		}
+
+		if _, err = x.Delete(ctx, tx); err != nil {
+			t.Fatal("failed to delete x", err)
 		}
 	}
 }
@@ -637,7 +751,7 @@ func testLinkedAccountsSelect(t *testing.T) {
 }
 
 var (
-	linkedAccountDBTypes = map[string]string{`ID`: `bigint`, `Alias`: `text`, `ItemID`: `text`, `AccessToken`: `text`, `UserID`: `bigint`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
+	linkedAccountDBTypes = map[string]string{`ID`: `bigint`, `Alias`: `text`, `ItemID`: `text`, `AccessToken`: `text`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
 	_                    = bytes.MinRead
 )
 

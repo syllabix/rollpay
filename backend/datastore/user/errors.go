@@ -7,6 +7,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/syllabix/rollpay/backend/datastore/model"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 var (
@@ -15,7 +16,7 @@ var (
 	ErrEmailTaken = errors.New("the email being used to create a new account is already in use")
 )
 
-func failure(reason error) (user model.User, err error) {
+func mapErr(reason error) (err error) {
 	var sqlErr *pq.Error
 	switch {
 	case errors.Is(reason, sql.ErrNoRows):
@@ -34,4 +35,17 @@ func failure(reason error) (user model.User, err error) {
 	}
 
 	return
+}
+
+func failure(reason error) (user model.User, err error) {
+	return user, mapErr(reason)
+}
+
+func rollback(tx boil.Transactor, reason error) (user model.User, err error) {
+	err = tx.Rollback()
+	if err != nil {
+		return user, mapErr(err)
+	}
+
+	return user, mapErr(reason)
 }

@@ -4,9 +4,17 @@
 package model
 
 var TableNames = struct {
-	LinkedAccounts string
-	Users          string
+	LinkedAccounts       string
+	OrganizationAccounts string
+	OrganizationMembers  string
+	Organizations        string
+	UserAccounts         string
+	Users                string
 }{
-	LinkedAccounts: "linked_accounts",
-	Users:          "users",
+	LinkedAccounts:       "linked_accounts",
+	OrganizationAccounts: "organization_accounts",
+	OrganizationMembers:  "organization_members",
+	Organizations:        "organizations",
+	UserAccounts:         "user_accounts",
+	Users:                "users",
 }
