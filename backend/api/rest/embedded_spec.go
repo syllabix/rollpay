@@ -707,6 +707,20 @@ func init() {
         }
       }
     },
+    "RollpayToken": {
+      "type": "object",
+      "properties": {
+        "expiration": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "token": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
     "StandardError": {
       "type": "object",
       "properties": {
@@ -1737,6 +1751,20 @@ func init() {
         },
         "userId": {
           "type": "integer",
+          "readOnly": true
+        }
+      }
+    },
+    "RollpayToken": {
+      "type": "object",
+      "properties": {
+        "expiration": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "token": {
+          "type": "string",
           "readOnly": true
         }
       }

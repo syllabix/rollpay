@@ -204,6 +204,17 @@ definitions:
   ############################################
   # Tokens
   ############################################
+  RollpayToken:
+    type: object
+    properties:
+      token:
+        type: string
+        readOnly: true
+      expiration:
+        type: string
+        format: date-time
+        readOnly: true
+
   LinkToken:
     type: object
     properties:

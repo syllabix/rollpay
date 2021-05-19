@@ -27,6 +27,19 @@ func (s Store) GetByID(ctx context.Context, id int64) (model.User, error) {
 	return *user, nil
 }
 
+func (s Store) GetByEmail(ctx context.Context, email string) (model.User, error) {
+	user, err := model.Users(
+		model.UserWhere.Email.EQ(email),
+		qm.Load(model.UserRels.UserAccounts,
+			qm.Load(model.UserAccountRels.LinkedAccount)),
+	).One(ctx, s.db)
+	if err != nil {
+		return failure(err)
+	}
+
+	return *user, nil
+}
+
 func (s Store) Create(ctx context.Context, user model.User) (model.User, error) {
 	err := user.Insert(ctx, s.db, boil.Infer())
 	if err != nil {

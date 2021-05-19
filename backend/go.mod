@@ -12,6 +12,7 @@ require (
 	github.com/go-openapi/strfmt v0.20.1
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.2
+	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.4
