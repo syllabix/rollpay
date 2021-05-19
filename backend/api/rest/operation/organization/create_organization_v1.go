@@ -33,7 +33,7 @@ func NewCreateOrganizationV1(ctx *middleware.Context, handler CreateOrganization
 
 /* CreateOrganizationV1 swagger:route POST /v1/organization Organization createOrganizationV1
 
-create a new Organization
+create a new organization
 
 */
 type CreateOrganizationV1 struct {

@@ -20,7 +20,13 @@ import (
 // swagger:model OrganizationMember
 type OrganizationMember struct {
 
+	// avatar
+	// Read Only: true
+	// Format: byte
+	Avatar strfmt.Base64 `json:"avatar,omitempty"`
+
 	// email
+	// Read Only: true
 	// Format: email
 	Email strfmt.Email `json:"email,omitempty"`
 
@@ -29,6 +35,7 @@ type OrganizationMember struct {
 	ID string `json:"id,omitempty"`
 
 	// joined
+	// Read Only: true
 	// Format: date-time
 	Joined strfmt.DateTime `json:"joined,omitempty"`
 
@@ -37,6 +44,7 @@ type OrganizationMember struct {
 	Role string `json:"role,omitempty"`
 
 	// username
+	// Read Only: true
 	Username string `json:"username,omitempty"`
 }
 
@@ -132,7 +140,23 @@ func (m *OrganizationMember) validateRole(formats strfmt.Registry) error {
 func (m *OrganizationMember) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAvatar(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateEmail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateJoined(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUsername(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -142,9 +166,45 @@ func (m *OrganizationMember) ContextValidate(ctx context.Context, formats strfmt
 	return nil
 }
 
+func (m *OrganizationMember) contextValidateAvatar(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "avatar", "body", strfmt.Base64(m.Avatar)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OrganizationMember) contextValidateEmail(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "email", "body", strfmt.Email(m.Email)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *OrganizationMember) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "id", "body", string(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OrganizationMember) contextValidateJoined(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "joined", "body", strfmt.DateTime(m.Joined)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OrganizationMember) contextValidateUsername(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "username", "body", string(m.Username)); err != nil {
 		return err
 	}
 

@@ -3,6 +3,7 @@ package organization
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/syllabix/rollpay/backend/datastore/model"
 	"github.com/syllabix/rollpay/backend/db"
@@ -26,6 +27,20 @@ func (s Store) GetByID(ctx context.Context, id int64) (model.Organization, error
 	}
 
 	return *org, nil
+}
+
+func (s Store) GetAll(ctx context.Context) (model.OrganizationSlice, error) {
+	orgs, err := model.Organizations().All(ctx, s.db)
+	if err != nil {
+		// special case - if there are no orgs setup,
+		// just return an empty slice
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.OrganizationSlice{}, nil
+		}
+		return nil, mapErr(err)
+	}
+
+	return orgs, nil
 }
 
 func (s Store) Create(ctx context.Context, org model.Organization) (model.Organization, error) {

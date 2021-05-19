@@ -23,10 +23,6 @@ type Organization struct {
 	// accounts
 	Accounts []*LinkedAccount `json:"accounts"`
 
-	// avatar
-	// Format: byte
-	Avatar strfmt.Base64 `json:"avatar,omitempty"`
-
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
@@ -34,6 +30,10 @@ type Organization struct {
 	// id
 	// Read Only: true
 	ID string `json:"id,omitempty"`
+
+	// logo
+	// Format: byte
+	Logo strfmt.Base64 `json:"logo,omitempty"`
 
 	// name
 	Name string `json:"name,omitempty"`

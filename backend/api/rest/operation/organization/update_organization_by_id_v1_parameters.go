@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/validate"
 )
 
 // UpdateOrganizationByIDV1MaxParseMemory sets the maximum size in bytes for
@@ -67,15 +66,13 @@ type UpdateOrganizationByIDV1Params struct {
 	*/
 	ID string
 	/*the organization logo
-	  Required: true
 	  In: formData
 	*/
 	Logo io.ReadCloser
 	/*
-	  Required: true
 	  In: formData
 	*/
-	Name string
+	Name *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -110,10 +107,11 @@ func (o *UpdateOrganizationByIDV1Params) BindRequest(r *http.Request, route *mid
 	}
 
 	logo, logoHeader, err := r.FormFile("logo")
-	if err != nil {
+	if err != nil && err != http.ErrMissingFile {
 		res = append(res, errors.New(400, "reading file %q failed: %v", "logo", err))
+	} else if err == http.ErrMissingFile {
+		// no-op for missing but optional file parameter
 	} else if err := o.bindLogo(logo, logoHeader); err != nil {
-		// Required: true
 		res = append(res, err)
 	} else {
 		o.Logo = &runtime.File{Data: logo, Header: logoHeader}
@@ -188,20 +186,17 @@ func (o *UpdateOrganizationByIDV1Params) bindLogo(file multipart.File, header *m
 
 // bindName binds and validates parameter Name from formData.
 func (o *UpdateOrganizationByIDV1Params) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("name", "formData", rawData)
-	}
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
 
-	// Required: true
+	// Required: false
 
-	if err := validate.RequiredString("name", "formData", raw); err != nil {
-		return err
+	if raw == "" { // empty values pass all other validations
+		return nil
 	}
-	o.Name = raw
+	o.Name = &raw
 
 	return nil
 }

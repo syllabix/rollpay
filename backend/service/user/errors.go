@@ -30,7 +30,7 @@ func mapErr(reason error) (err error) {
 		err = fmt.Errorf("%w: %v", ErrInvalid, reason)
 
 	default:
-		err = fmt.Errorf("%v: %w", ErrFatal, err)
+		err = fmt.Errorf("%v: %w", ErrFatal, reason)
 	}
 
 	return err

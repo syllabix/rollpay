@@ -145,8 +145,14 @@ definitions:
       email:
         type: string
         format: email
+        readOnly: true
       username:
         type: string
+        readOnly: true
+      avatar:
+        type: string
+        format: byte
+        readOnly: true
       role:
         type: string
         enum:
@@ -155,6 +161,7 @@ definitions:
       joined:
         type: string
         format: date-time
+        readOnly: true
 
   Organization:
     type: object
@@ -164,7 +171,7 @@ definitions:
         readOnly: true
       name:
         type: string
-      avatar:
+      logo:
         type: string
         format: byte
       accounts:
@@ -177,6 +184,22 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+
+  OrganizationList:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/Organization"
+
+  MemberList:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/OrganizationMember"
 
   ############################################
   # Tokens
@@ -427,11 +450,28 @@ paths:
       - $ref: "#/parameters/userAgent"
       - $ref: "#/parameters/acceptLang"
 
+    get:
+      tags:
+        - Organization
+      summary: get all organizations
+      operationId: GetAllOrgsV1
+      responses:
+        200:
+          description: a list of available organizations
+          schema:
+            $ref: "#/definitions/OrganizationList"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
     post:
       tags:
         - Organization
       operationId: CreateOrganizationV1
-      summary: create a new Organization
+      summary: create a new organization
       consumes:
          - multipart/form-data
       parameters:
@@ -496,11 +536,11 @@ paths:
            name: logo
            type: file
            description: the organization logo
-           required: true
+           required: false
          - in: formData
            name: name
            type: string
-           required: true
+           required: false
 
       responses:
         200:
@@ -528,6 +568,69 @@ paths:
           $ref: "#/responses/400ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  /v1/organization/{id}/member:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: the id of the org
+
+    get:
+      tags:
+        - Organization
+      summary: get all organization memebers
+      operationId: GetOrgMembersV1
+      responses:
+        200:
+          description: a list of organization memebers
+          schema:
+            $ref: "#/definitions/MemberList"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+    put:
+      tags:
+        - Organization
+      summary: add a member to an organization
+      operationId: AddOrgMembersV1
+      parameters:
+        - in: body
+          name: member
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              role:
+                type: string
+                enum:
+                  - manager
+                  - employee
+            required:
+              - userId
+              - role
+
+      responses:
+        200:
+          description: a successfully added member
+          schema:
+            $ref: "#/definitions/OrganizationMember"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        404:
+          $ref: "#/responses/404ErrorResponse"
+        409:
+          $ref: "#/responses/409ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"
 

@@ -13,7 +13,8 @@ import (
 	"github.com/syllabix/rollpay/backend/web/rest"
 )
 
-// Controller is responsible for handling media related request for the API
+// Controller is responsible for handling authorization and token
+// related request for the API
 type Controller struct {
 	srv token.Service
 }
