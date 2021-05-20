@@ -9,6 +9,7 @@ import (
 	"github.com/syllabix/rollpay/backend/api/model"
 	"github.com/syllabix/rollpay/backend/api/rest/operation"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/authorization"
+	"github.com/syllabix/rollpay/backend/service/session"
 	"github.com/syllabix/rollpay/backend/service/token"
 	"github.com/syllabix/rollpay/backend/web/rest"
 )
@@ -16,7 +17,8 @@ import (
 // Controller is responsible for handling authorization and token
 // related request for the API
 type Controller struct {
-	srv token.Service
+	srv     token.Service
+	session *session.Manager
 }
 
 // Register controller handlers to the api
@@ -29,12 +31,15 @@ func (ctrl *Controller) Register(api *operation.RollpayAPI) {
 
 // Authenticate is used to authenticate requests to the rollpay API
 func (ctrl *Controller) Authenticate(token string) (*model.Principal, error) {
-	// TODO: actually authenticate
-	if token != "sandbox" {
+	session, ok := ctrl.session.Get(token)
+	if !ok {
 		return nil, apierror.New(http.StatusUnauthorized, "please login to make this request")
 	}
 
-	return &model.Principal{}, nil
+	return &model.Principal{
+		SessionID: session.ID,
+		UserID:    session.UserID,
+	}, nil
 }
 
 // StartPlaidLink handles requests to initaite a link with our payment provider Plaid
@@ -64,6 +69,6 @@ func (ctrl *Controller) StartPlaidLink(params authorization.StartPlaidLinkV1Para
 
 // NewController intializes a new api controller for handling health endpoint
 // requests
-func NewController(srv token.Service) rest.Controller {
-	return rest.MakeController(&Controller{srv})
+func NewController(srv token.Service, session *session.Manager) rest.Controller {
+	return rest.MakeController(&Controller{srv, session})
 }

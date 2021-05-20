@@ -31,9 +31,16 @@ type ServerSettings struct {
 	WriteTimeout time.Duration
 }
 
+type TokenKey struct {
+	HashKey  []byte
+	BlockKey []byte
+}
+
 type SecuritySettings struct {
 	PasswordHashCost  int
 	PasswordMaxLength int
+	CurrentTokenKey   TokenKey
+	PreviousTokenKey  TokenKey
 }
 
 // Load all application settings, from either flags or a .env file
@@ -75,6 +82,14 @@ func Load() (ServerSettings, PlaidSettings, db.Settings, SecuritySettings) {
 		}, SecuritySettings{
 			PasswordHashCost:  getEnvAsInt("PASSWORD_HASH_COST", 11),
 			PasswordMaxLength: getEnvAsInt("PASSWORD_MAX_LENGTH", 4096),
+			CurrentTokenKey: TokenKey{
+				HashKey:  []byte(os.Getenv("CUR_TOKEN_HASH_KEY")),
+				BlockKey: []byte(os.Getenv("CUR_TOKEN_BLOCK_KEY")),
+			},
+			PreviousTokenKey: TokenKey{
+				HashKey:  []byte(os.Getenv("PREV_TOKEN_HASH_KEY")),
+				BlockKey: []byte(os.Getenv("PREV_TOKEN_BLOCK_KEY")),
+			},
 		}
 }
 

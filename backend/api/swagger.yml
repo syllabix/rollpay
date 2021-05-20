@@ -37,6 +37,15 @@ definitions:
         type: integer
         readOnly: true
 
+  Credentials:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
 
   StandardResponse:
     type: object
@@ -364,6 +373,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         409:
           $ref: "#/responses/409ErrorResponse"
         500:
@@ -391,6 +402,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -431,6 +444,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         409:
@@ -448,6 +463,8 @@ paths:
           $ref: "#/responses/OkResponse"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -473,6 +490,8 @@ paths:
             $ref: "#/definitions/OrganizationList"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -503,6 +522,8 @@ paths:
             $ref: "#/definitions/Organization"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         409:
           $ref: "#/responses/409ErrorResponse"
         500:
@@ -530,6 +551,8 @@ paths:
             $ref: "#/definitions/Organization"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -560,6 +583,8 @@ paths:
             $ref: "#/definitions/Organization"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         409:
@@ -577,6 +602,8 @@ paths:
           $ref: "#/responses/OkResponse"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -604,6 +631,8 @@ paths:
             $ref: "#/definitions/MemberList"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         500:
@@ -638,10 +667,68 @@ paths:
             $ref: "#/definitions/OrganizationMember"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         404:
           $ref: "#/responses/404ErrorResponse"
         409:
           $ref: "#/responses/409ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  ##############################################
+  # Login/Logout
+  ##############################################
+  /v1/login:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+
+    post:
+      tags:
+        - Session
+      summary: attempt to login and receive an auth token for the service
+      operationId: StartSessionV1
+      security: []
+      parameters:
+        - in: body
+          name: credentials
+          schema:
+            $ref: "#/definitions/Credentials"
+      responses:
+        201:
+          description: a newly issued rollpay auth token
+          schema:
+            $ref: "#/definitions/RollpayToken"
+        401:
+          $ref: "#/responses/401ErrorResponse"
+        500:
+          $ref: "#/responses/500ErrorResponse"
+
+  /v1/logout:
+    parameters:
+      - $ref: "#/parameters/userAgent"
+      - $ref: "#/parameters/acceptLang"
+
+    post:
+      tags:
+        - Session
+      summary: terminate a session
+      operationId: EndSessionV1
+      parameters:
+        - in: body
+          name: token
+          schema:
+            $ref: "#/definitions/RollpayToken"
+      responses:
+        200:
+          description: session has been terminated
+          schema:
+            $ref: "#/definitions/StandardResponse"
+        400:
+          $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"
 
@@ -673,6 +760,8 @@ paths:
             $ref: "#/definitions/LinkToken"
         400:
           $ref: "#/responses/400ErrorResponse"
+        401:
+          $ref: "#/responses/401ErrorResponse"
         500:
           $ref: "#/responses/500ErrorResponse"
 

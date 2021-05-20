@@ -101,6 +101,50 @@ func (o *DeleteUserByIDV1BadRequest) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
+// DeleteUserByIDV1UnauthorizedCode is the HTTP code returned for type DeleteUserByIDV1Unauthorized
+const DeleteUserByIDV1UnauthorizedCode int = 401
+
+/*DeleteUserByIDV1Unauthorized The requested resource requires authentication.
+
+swagger:response deleteUserByIdV1Unauthorized
+*/
+type DeleteUserByIDV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewDeleteUserByIDV1Unauthorized creates DeleteUserByIDV1Unauthorized with default headers values
+func NewDeleteUserByIDV1Unauthorized() *DeleteUserByIDV1Unauthorized {
+
+	return &DeleteUserByIDV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the delete user by Id v1 unauthorized response
+func (o *DeleteUserByIDV1Unauthorized) WithPayload(payload *model.StandardError) *DeleteUserByIDV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete user by Id v1 unauthorized response
+func (o *DeleteUserByIDV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteUserByIDV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DeleteUserByIDV1NotFoundCode is the HTTP code returned for type DeleteUserByIDV1NotFound
 const DeleteUserByIDV1NotFoundCode int = 404
 

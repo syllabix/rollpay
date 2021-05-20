@@ -23,6 +23,7 @@ import (
 	"github.com/syllabix/rollpay/backend/api/rest/operation/authorization"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/health"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/organization"
+	"github.com/syllabix/rollpay/backend/api/rest/operation/session"
 	"github.com/syllabix/rollpay/backend/api/rest/operation/user"
 )
 
@@ -67,6 +68,9 @@ func NewRollpayAPI(spec *loads.Document) *RollpayAPI {
 		UserDeleteUserByIDV1Handler: user.DeleteUserByIDV1HandlerFunc(func(params user.DeleteUserByIDV1Params, principal *model.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.DeleteUserByIDV1 has not yet been implemented")
 		}),
+		SessionEndSessionV1Handler: session.EndSessionV1HandlerFunc(func(params session.EndSessionV1Params, principal *model.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation session.EndSessionV1 has not yet been implemented")
+		}),
 		OrganizationGetAllOrgsV1Handler: organization.GetAllOrgsV1HandlerFunc(func(params organization.GetAllOrgsV1Params, principal *model.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation organization.GetAllOrgsV1 has not yet been implemented")
 		}),
@@ -81,6 +85,9 @@ func NewRollpayAPI(spec *loads.Document) *RollpayAPI {
 		}),
 		AuthorizationStartPlaidLinkV1Handler: authorization.StartPlaidLinkV1HandlerFunc(func(params authorization.StartPlaidLinkV1Params, principal *model.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation authorization.StartPlaidLinkV1 has not yet been implemented")
+		}),
+		SessionStartSessionV1Handler: session.StartSessionV1HandlerFunc(func(params session.StartSessionV1Params) middleware.Responder {
+			return middleware.NotImplemented("operation session.StartSessionV1 has not yet been implemented")
 		}),
 		OrganizationUpdateOrganizationByIDV1Handler: organization.UpdateOrganizationByIDV1HandlerFunc(func(params organization.UpdateOrganizationByIDV1Params, principal *model.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation organization.UpdateOrganizationByIDV1 has not yet been implemented")
@@ -153,6 +160,8 @@ type RollpayAPI struct {
 	OrganizationDeleteOrganizationByIDV1Handler organization.DeleteOrganizationByIDV1Handler
 	// UserDeleteUserByIDV1Handler sets the operation handler for the delete user by ID v1 operation
 	UserDeleteUserByIDV1Handler user.DeleteUserByIDV1Handler
+	// SessionEndSessionV1Handler sets the operation handler for the end session v1 operation
+	SessionEndSessionV1Handler session.EndSessionV1Handler
 	// OrganizationGetAllOrgsV1Handler sets the operation handler for the get all orgs v1 operation
 	OrganizationGetAllOrgsV1Handler organization.GetAllOrgsV1Handler
 	// OrganizationGetOrgMembersV1Handler sets the operation handler for the get org members v1 operation
@@ -163,6 +172,8 @@ type RollpayAPI struct {
 	UserGetUserByIDV1Handler user.GetUserByIDV1Handler
 	// AuthorizationStartPlaidLinkV1Handler sets the operation handler for the start plaid link v1 operation
 	AuthorizationStartPlaidLinkV1Handler authorization.StartPlaidLinkV1Handler
+	// SessionStartSessionV1Handler sets the operation handler for the start session v1 operation
+	SessionStartSessionV1Handler session.StartSessionV1Handler
 	// OrganizationUpdateOrganizationByIDV1Handler sets the operation handler for the update organization by ID v1 operation
 	OrganizationUpdateOrganizationByIDV1Handler organization.UpdateOrganizationByIDV1Handler
 	// UserUpdateUserByIDV1Handler sets the operation handler for the update user by ID v1 operation
@@ -269,6 +280,9 @@ func (o *RollpayAPI) Validate() error {
 	if o.UserDeleteUserByIDV1Handler == nil {
 		unregistered = append(unregistered, "user.DeleteUserByIDV1Handler")
 	}
+	if o.SessionEndSessionV1Handler == nil {
+		unregistered = append(unregistered, "session.EndSessionV1Handler")
+	}
 	if o.OrganizationGetAllOrgsV1Handler == nil {
 		unregistered = append(unregistered, "organization.GetAllOrgsV1Handler")
 	}
@@ -283,6 +297,9 @@ func (o *RollpayAPI) Validate() error {
 	}
 	if o.AuthorizationStartPlaidLinkV1Handler == nil {
 		unregistered = append(unregistered, "authorization.StartPlaidLinkV1Handler")
+	}
+	if o.SessionStartSessionV1Handler == nil {
+		unregistered = append(unregistered, "session.StartSessionV1Handler")
 	}
 	if o.OrganizationUpdateOrganizationByIDV1Handler == nil {
 		unregistered = append(unregistered, "organization.UpdateOrganizationByIDV1Handler")
@@ -415,6 +432,10 @@ func (o *RollpayAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/v1/user/{id}"] = user.NewDeleteUserByIDV1(o.context, o.UserDeleteUserByIDV1Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/v1/logout"] = session.NewEndSessionV1(o.context, o.SessionEndSessionV1Handler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -435,6 +456,10 @@ func (o *RollpayAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/v1/auth/link-token"] = authorization.NewStartPlaidLinkV1(o.context, o.AuthorizationStartPlaidLinkV1Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/v1/login"] = session.NewStartSessionV1(o.context, o.SessionStartSessionV1Handler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

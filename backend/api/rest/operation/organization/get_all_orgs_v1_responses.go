@@ -101,6 +101,50 @@ func (o *GetAllOrgsV1BadRequest) WriteResponse(rw http.ResponseWriter, producer 
 	}
 }
 
+// GetAllOrgsV1UnauthorizedCode is the HTTP code returned for type GetAllOrgsV1Unauthorized
+const GetAllOrgsV1UnauthorizedCode int = 401
+
+/*GetAllOrgsV1Unauthorized The requested resource requires authentication.
+
+swagger:response getAllOrgsV1Unauthorized
+*/
+type GetAllOrgsV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewGetAllOrgsV1Unauthorized creates GetAllOrgsV1Unauthorized with default headers values
+func NewGetAllOrgsV1Unauthorized() *GetAllOrgsV1Unauthorized {
+
+	return &GetAllOrgsV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the get all orgs v1 unauthorized response
+func (o *GetAllOrgsV1Unauthorized) WithPayload(payload *model.StandardError) *GetAllOrgsV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get all orgs v1 unauthorized response
+func (o *GetAllOrgsV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetAllOrgsV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // GetAllOrgsV1NotFoundCode is the HTTP code returned for type GetAllOrgsV1NotFound
 const GetAllOrgsV1NotFoundCode int = 404
 

@@ -101,6 +101,50 @@ func (o *UpdateOrganizationByIDV1BadRequest) WriteResponse(rw http.ResponseWrite
 	}
 }
 
+// UpdateOrganizationByIDV1UnauthorizedCode is the HTTP code returned for type UpdateOrganizationByIDV1Unauthorized
+const UpdateOrganizationByIDV1UnauthorizedCode int = 401
+
+/*UpdateOrganizationByIDV1Unauthorized The requested resource requires authentication.
+
+swagger:response updateOrganizationByIdV1Unauthorized
+*/
+type UpdateOrganizationByIDV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewUpdateOrganizationByIDV1Unauthorized creates UpdateOrganizationByIDV1Unauthorized with default headers values
+func NewUpdateOrganizationByIDV1Unauthorized() *UpdateOrganizationByIDV1Unauthorized {
+
+	return &UpdateOrganizationByIDV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the update organization by Id v1 unauthorized response
+func (o *UpdateOrganizationByIDV1Unauthorized) WithPayload(payload *model.StandardError) *UpdateOrganizationByIDV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update organization by Id v1 unauthorized response
+func (o *UpdateOrganizationByIDV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateOrganizationByIDV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateOrganizationByIDV1NotFoundCode is the HTTP code returned for type UpdateOrganizationByIDV1NotFound
 const UpdateOrganizationByIDV1NotFoundCode int = 404
 

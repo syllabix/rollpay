@@ -101,6 +101,50 @@ func (o *GetUserByIDV1BadRequest) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
+// GetUserByIDV1UnauthorizedCode is the HTTP code returned for type GetUserByIDV1Unauthorized
+const GetUserByIDV1UnauthorizedCode int = 401
+
+/*GetUserByIDV1Unauthorized The requested resource requires authentication.
+
+swagger:response getUserByIdV1Unauthorized
+*/
+type GetUserByIDV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewGetUserByIDV1Unauthorized creates GetUserByIDV1Unauthorized with default headers values
+func NewGetUserByIDV1Unauthorized() *GetUserByIDV1Unauthorized {
+
+	return &GetUserByIDV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the get user by Id v1 unauthorized response
+func (o *GetUserByIDV1Unauthorized) WithPayload(payload *model.StandardError) *GetUserByIDV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get user by Id v1 unauthorized response
+func (o *GetUserByIDV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetUserByIDV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // GetUserByIDV1NotFoundCode is the HTTP code returned for type GetUserByIDV1NotFound
 const GetUserByIDV1NotFoundCode int = 404
 

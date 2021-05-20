@@ -101,6 +101,50 @@ func (o *CreateOrganizationV1BadRequest) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
+// CreateOrganizationV1UnauthorizedCode is the HTTP code returned for type CreateOrganizationV1Unauthorized
+const CreateOrganizationV1UnauthorizedCode int = 401
+
+/*CreateOrganizationV1Unauthorized The requested resource requires authentication.
+
+swagger:response createOrganizationV1Unauthorized
+*/
+type CreateOrganizationV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewCreateOrganizationV1Unauthorized creates CreateOrganizationV1Unauthorized with default headers values
+func NewCreateOrganizationV1Unauthorized() *CreateOrganizationV1Unauthorized {
+
+	return &CreateOrganizationV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the create organization v1 unauthorized response
+func (o *CreateOrganizationV1Unauthorized) WithPayload(payload *model.StandardError) *CreateOrganizationV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create organization v1 unauthorized response
+func (o *CreateOrganizationV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateOrganizationV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateOrganizationV1ConflictCode is the HTTP code returned for type CreateOrganizationV1Conflict
 const CreateOrganizationV1ConflictCode int = 409
 

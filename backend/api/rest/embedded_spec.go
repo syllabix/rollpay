@@ -66,6 +66,9 @@ func init() {
           "400": {
             "$ref": "#/responses/400ErrorResponse"
           },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
           "500": {
             "$ref": "#/responses/500ErrorResponse"
           }
@@ -98,6 +101,90 @@ func init() {
         }
       }
     },
+    "/v1/login": {
+      "post": {
+        "security": [],
+        "tags": [
+          "Session"
+        ],
+        "summary": "attempt to login and receive an auth token for the service",
+        "operationId": "StartSessionV1",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Credentials"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly issued rollpay auth token",
+            "schema": {
+              "$ref": "#/definitions/RollpayToken"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        }
+      ]
+    },
+    "/v1/logout": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "terminate a session",
+        "operationId": "EndSessionV1",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RollpayToken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "session has been terminated",
+            "schema": {
+              "$ref": "#/definitions/StandardResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/500ErrorResponse"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/userAgent"
+        },
+        {
+          "$ref": "#/parameters/acceptLang"
+        }
+      ]
+    },
     "/v1/organization": {
       "get": {
         "tags": [
@@ -114,6 +201,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -157,6 +247,9 @@ func init() {
           "400": {
             "$ref": "#/responses/400ErrorResponse"
           },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
           "409": {
             "$ref": "#/responses/409ErrorResponse"
           },
@@ -190,6 +283,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -231,6 +327,9 @@ func init() {
           "400": {
             "$ref": "#/responses/400ErrorResponse"
           },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
           },
@@ -254,6 +353,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -295,6 +397,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -344,6 +449,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -422,6 +530,9 @@ func init() {
           "400": {
             "$ref": "#/responses/400ErrorResponse"
           },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
           "409": {
             "$ref": "#/responses/409ErrorResponse"
           },
@@ -455,6 +566,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -508,6 +622,9 @@ func init() {
           "400": {
             "$ref": "#/responses/400ErrorResponse"
           },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
+          },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
           },
@@ -531,6 +648,9 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/400ErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/401ErrorResponse"
           },
           "404": {
             "$ref": "#/responses/404ErrorResponse"
@@ -558,6 +678,19 @@ func init() {
     }
   },
   "definitions": {
+    "Credentials": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "format": "password"
+        }
+      }
+    },
     "FieldError": {
       "type": "object",
       "properties": {
@@ -949,6 +1082,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "500": {
             "description": "An unexpected system or network error occured.",
             "schema": {
@@ -997,6 +1136,119 @@ func init() {
         }
       }
     },
+    "/v1/login": {
+      "post": {
+        "security": [],
+        "tags": [
+          "Session"
+        ],
+        "summary": "attempt to login and receive an auth token for the service",
+        "operationId": "StartSessionV1",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Credentials"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "a newly issued rollpay auth token",
+            "schema": {
+              "$ref": "#/definitions/RollpayToken"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        }
+      ]
+    },
+    "/v1/logout": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "terminate a session",
+        "operationId": "EndSessionV1",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RollpayToken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "session has been terminated",
+            "schema": {
+              "$ref": "#/definitions/StandardResponse"
+            }
+          },
+          "400": {
+            "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "500": {
+            "description": "An unexpected system or network error occured.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "default": "test-user",
+          "name": "User-Agent",
+          "in": "header"
+        },
+        {
+          "type": "string",
+          "default": "en",
+          "description": "the accept language header as defined in RFC 7231, section 5.3.5 Accept-Language",
+          "name": "Accept-Language",
+          "in": "header"
+        }
+      ]
+    },
     "/v1/organization": {
       "get": {
         "tags": [
@@ -1013,6 +1265,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1068,6 +1326,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "409": {
             "description": "A conflict with an existing resource or process occured.",
             "schema": {
@@ -1114,6 +1378,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1167,6 +1437,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "404": {
             "description": "The resource requested does not exist.",
             "schema": {
@@ -1202,6 +1478,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1263,6 +1545,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "404": {
             "description": "The resource requested does not exist.",
             "schema": {
@@ -1317,6 +1605,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1417,6 +1711,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "409": {
             "description": "A conflict with an existing resource or process occured.",
             "schema": {
@@ -1463,6 +1763,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1528,6 +1834,12 @@ func init() {
               "$ref": "#/definitions/StandardError"
             }
           },
+          "401": {
+            "description": "The requested resource requires authentication.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
           "404": {
             "description": "The resource requested does not exist.",
             "schema": {
@@ -1563,6 +1875,12 @@ func init() {
           },
           "400": {
             "description": "The provided request was invalid.",
+            "schema": {
+              "$ref": "#/definitions/StandardError"
+            }
+          },
+          "401": {
+            "description": "The requested resource requires authentication.",
             "schema": {
               "$ref": "#/definitions/StandardError"
             }
@@ -1606,6 +1924,19 @@ func init() {
     }
   },
   "definitions": {
+    "Credentials": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "format": "password"
+        }
+      }
+    },
     "FieldError": {
       "type": "object",
       "properties": {

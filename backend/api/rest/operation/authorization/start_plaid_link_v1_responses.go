@@ -101,6 +101,50 @@ func (o *StartPlaidLinkV1BadRequest) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
+// StartPlaidLinkV1UnauthorizedCode is the HTTP code returned for type StartPlaidLinkV1Unauthorized
+const StartPlaidLinkV1UnauthorizedCode int = 401
+
+/*StartPlaidLinkV1Unauthorized The requested resource requires authentication.
+
+swagger:response startPlaidLinkV1Unauthorized
+*/
+type StartPlaidLinkV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewStartPlaidLinkV1Unauthorized creates StartPlaidLinkV1Unauthorized with default headers values
+func NewStartPlaidLinkV1Unauthorized() *StartPlaidLinkV1Unauthorized {
+
+	return &StartPlaidLinkV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the start plaid link v1 unauthorized response
+func (o *StartPlaidLinkV1Unauthorized) WithPayload(payload *model.StandardError) *StartPlaidLinkV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the start plaid link v1 unauthorized response
+func (o *StartPlaidLinkV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *StartPlaidLinkV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // StartPlaidLinkV1InternalServerErrorCode is the HTTP code returned for type StartPlaidLinkV1InternalServerError
 const StartPlaidLinkV1InternalServerErrorCode int = 500
 

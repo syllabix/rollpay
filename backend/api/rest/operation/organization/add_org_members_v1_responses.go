@@ -101,6 +101,50 @@ func (o *AddOrgMembersV1BadRequest) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
+// AddOrgMembersV1UnauthorizedCode is the HTTP code returned for type AddOrgMembersV1Unauthorized
+const AddOrgMembersV1UnauthorizedCode int = 401
+
+/*AddOrgMembersV1Unauthorized The requested resource requires authentication.
+
+swagger:response addOrgMembersV1Unauthorized
+*/
+type AddOrgMembersV1Unauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *model.StandardError `json:"body,omitempty"`
+}
+
+// NewAddOrgMembersV1Unauthorized creates AddOrgMembersV1Unauthorized with default headers values
+func NewAddOrgMembersV1Unauthorized() *AddOrgMembersV1Unauthorized {
+
+	return &AddOrgMembersV1Unauthorized{}
+}
+
+// WithPayload adds the payload to the add org members v1 unauthorized response
+func (o *AddOrgMembersV1Unauthorized) WithPayload(payload *model.StandardError) *AddOrgMembersV1Unauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the add org members v1 unauthorized response
+func (o *AddOrgMembersV1Unauthorized) SetPayload(payload *model.StandardError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *AddOrgMembersV1Unauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // AddOrgMembersV1NotFoundCode is the HTTP code returned for type AddOrgMembersV1NotFound
 const AddOrgMembersV1NotFoundCode int = 404
 
